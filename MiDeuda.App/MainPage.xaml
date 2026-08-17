@@ -1,14 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:MiDeuda.App"
              x:Class="MiDeuda.App.MainPage"
              Title="Control de Gastos"
              BackgroundColor="{AppThemeBinding Light=#F5F7FB, Dark=#1E1E1E}">
 
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <local:CategoriaColorConverter x:Key="CatColorConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
 
-            <!-- TARJETA: TOTAL ACUMULADO -->
+            <!-- Tarjeta Total -->
             <Border StrokeShape="RoundRectangle 12"
                     BackgroundColor="{AppThemeBinding Light=#512BD4, Dark=#381E8D}"
                     Padding="20">
@@ -25,7 +32,7 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- FORMULARIO DE CARGA -->
+            <!-- Formulario de Registro -->
             <Border StrokeShape="RoundRectangle 12"
                     Padding="16"
                     BackgroundColor="{AppThemeBinding Light=White, Dark=#2D2D2D}">
@@ -34,11 +41,9 @@
                            FontSize="18"
                            FontAttributes="Bold" />
 
-                    <!-- Descripción -->
                     <Entry x:Name="TxtDescripcion"
                            Placeholder="Descripción (ej. Supermercado, Nafta)" />
 
-                    <!-- Monto y Moneda -->
                     <Grid ColumnDefinitions="2*,1*" ColumnSpacing="10">
                         <Entry x:Name="TxtMonto"
                                Grid.Column="0"
@@ -56,7 +61,6 @@
                         </Picker>
                     </Grid>
 
-                    <!-- Categoría y Fecha -->
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                         <Picker x:Name="CboCategoria"
                                 Grid.Column="0"
@@ -76,7 +80,6 @@
                                     Format="dd/MM/yyyy" />
                     </Grid>
 
-                    <!-- Botón Guardar -->
                     <Button Text="Guardar Gasto"
                             BackgroundColor="#512BD4"
                             TextColor="White"
@@ -87,59 +90,66 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- LISTADO DE GASTOS -->
+            <!-- Historial con Etiquetas Tipo Trello -->
             <Label Text="Historial de Gastos"
                    FontSize="18"
                    FontAttributes="Bold"
                    Margin="0,10,0,0" />
 
             <CollectionView x:Name="ListaGastosView"
-                SelectionMode="None">
+                            SelectionMode="None">
                 <CollectionView.EmptyView>
                     <Label Text="No hay gastos registrados todavía."
-               HorizontalOptions="Center"
-               Margin="0,20"
-               TextColor="Gray" />
+                           HorizontalOptions="Center"
+                           Margin="0,20"
+                           TextColor="Gray" />
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <SwipeView>
-                            <!-- Acciones al deslizar a la derecha: Eliminar -->
                             <SwipeView.RightItems>
                                 <SwipeItems Mode="Reveal">
                                     <SwipeItem Text="Eliminar"
-                                   BackgroundColor="#E74C3C"
-                                   Invoked="OnEliminarGastoInvoked"
-                                   CommandParameter="{Binding .}" />
+                                               BackgroundColor="#E74C3C"
+                                               Invoked="OnEliminarGastoInvoked"
+                                               CommandParameter="{Binding .}" />
                                 </SwipeItems>
                             </SwipeView.RightItems>
 
-                            <!-- Tarjeta del Gasto -->
                             <Border StrokeShape="RoundRectangle 8"
-                        Padding="12"
-                        Margin="0,4"
-                        BackgroundColor="{AppThemeBinding Light=White, Dark=#2D2D2D}">
-                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                                    Padding="14"
+                                    Margin="0,4"
+                                    BackgroundColor="{AppThemeBinding Light=White, Dark=#2D2D2D}">
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="6">
+
                                     <Label Grid.Row="0" Grid.Column="0"
-                               Text="{Binding Descripcion}"
-                               FontAttributes="Bold"
-                               FontSize="16" />
+                                           Text="{Binding Descripcion}"
+                                           FontAttributes="Bold"
+                                           FontSize="16" />
 
                                     <Label Grid.Row="0" Grid.Column="1"
-                               Text="{Binding Monto, StringFormat='${0:N2}'}"
-                               FontAttributes="Bold"
-                               FontSize="16"
-                               TextColor="#E74C3C" />
+                                           Text="{Binding Monto, StringFormat='${0:N2}'}"
+                                           FontAttributes="Bold"
+                                           FontSize="16"
+                                           TextColor="#E74C3C" />
 
-                                    <Label Grid.Row="1" Grid.Column="0"
-                               Text="{Binding Categoria, StringFormat='Categoría: {0}'}"
-                               FontSize="12"
-                               TextColor="Gray" />
+                                    <!-- ETIQUETA TIPO TRELLO -->
+                                    <Border Grid.Row="1" Grid.Column="0"
+                                            HorizontalOptions="Start"
+                                            StrokeShape="RoundRectangle 4"
+                                            BackgroundColor="{Binding Categoria, Converter={StaticResource CatColorConverter}}"
+                                            Padding="8,2">
+                                        <Label Text="{Binding Categoria}"
+                                               FontSize="11"
+                                               FontAttributes="Bold"
+                                               TextColor="White" />
+                                    </Border>
 
                                     <Label Grid.Row="1" Grid.Column="1"
-                               Text="{Binding Fecha, StringFormat='{0:dd/MM/yyyy}'}"
-                               FontSize="12"
-                               TextColor="Gray" />
+                                           Text="{Binding Fecha, StringFormat='{0:dd/MM/yyyy}'}"
+                                           FontSize="12"
+                                           TextColor="Gray"
+                                           VerticalOptions="Center" />
                                 </Grid>
                             </Border>
                         </SwipeView>

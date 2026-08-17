@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:MiDeuda.App"
              x:Class="MiDeuda.App.ResumenPage"
              Title="Balance y Resumen"
              BackgroundColor="{AppThemeBinding Light=#F5F7FB, Dark=#1E1E1E}">
 
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <local:CategoriaColorConverter x:Key="CatColorConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
 
-            <!-- TARJETAS PRINCIPALES DE BALANCE -->
+            <!-- Tarjetas de Balance -->
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                <!-- Gasto del Mes -->
                 <Border Grid.Column="0"
                         StrokeShape="RoundRectangle 12"
                         BackgroundColor="{AppThemeBinding Light=#512BD4, Dark=#381E8D}"
@@ -28,7 +34,6 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- Facturas Pendientes -->
                 <Border Grid.Column="1"
                         StrokeShape="RoundRectangle 12"
                         BackgroundColor="{AppThemeBinding Light=#D32F2F, Dark=#8A1C1C}"
@@ -47,7 +52,7 @@
                 </Border>
             </Grid>
 
-            <!-- ALERTAS DE VENCIMIENTOS -->
+            <!-- Alertas de Vencimiento -->
             <Border StrokeShape="RoundRectangle 12"
                     Padding="16"
                     BackgroundColor="{AppThemeBinding Light=White, Dark=#2D2D2D}">
@@ -66,7 +71,7 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- DESGLOSE POR CATEGORÍA -->
+            <!-- Categorías con Etiquetas y Barras de Color -->
             <Label Text="Gastos por Categoría (Mes Actual)"
                    FontSize="16"
                    FontAttributes="Bold"
@@ -86,21 +91,29 @@
                                 Padding="12"
                                 Margin="0,3"
                                 BackgroundColor="{AppThemeBinding Light=White, Dark=#2D2D2D}">
-                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="6">
-                                <Label Grid.Row="0" Grid.Column="0"
-                                       Text="{Binding Categoria}"
-                                       FontAttributes="Bold"
-                                       FontSize="14" />
+                            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" RowSpacing="6">
 
-                                <Label Grid.Row="0" Grid.Column="1"
+                                <!-- Chip de Color -->
+                                <Border Grid.Row="0" Grid.Column="0"
+                                        StrokeShape="RoundRectangle 4"
+                                        BackgroundColor="{Binding Categoria, Converter={StaticResource CatColorConverter}}"
+                                        Padding="6,2"
+                                        Margin="0,0,8,0">
+                                    <Label Text="{Binding Categoria}"
+                                           FontSize="11"
+                                           FontAttributes="Bold"
+                                           TextColor="White" />
+                                </Border>
+
+                                <Label Grid.Row="0" Grid.Column="2"
                                        Text="{Binding Total, StringFormat='${0:N2}'}"
                                        FontAttributes="Bold"
                                        FontSize="14" />
 
-                                <!-- Barra de progreso visual por rubro -->
-                                <ProgressBar Grid.Row="1" Grid.ColumnSpan="2"
+                                <!-- Barra coloreada según el rubro -->
+                                <ProgressBar Grid.Row="1" Grid.ColumnSpan="3"
                                              Progress="{Binding Porcentaje}"
-                                             ProgressColor="#512BD4"
+                                             ProgressColor="{Binding Categoria, Converter={StaticResource CatColorConverter}}"
                                              HeightRequest="6" />
                             </Grid>
                         </Border>
