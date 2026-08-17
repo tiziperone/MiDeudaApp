@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MiDeuda.App.ResumenPage"
+             Title="Balance y Resumen"
+             BackgroundColor="{AppThemeBinding Light=#F5F7FB, Dark=#1E1E1E}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- TARJETAS PRINCIPALES DE BALANCE -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <!-- Gasto del Mes -->
+                <Border Grid.Column="0"
+                        StrokeShape="RoundRectangle 12"
+                        BackgroundColor="{AppThemeBinding Light=#512BD4, Dark=#381E8D}"
+                        Padding="16">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Gastado Este Mes"
+                               TextColor="White"
+                               FontSize="12"
+                               Opacity="0.8" />
+                        <Label x:Name="LblTotalMes"
+                               Text="$ 0,00"
+                               TextColor="White"
+                               FontSize="20"
+                               FontAttributes="Bold" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Facturas Pendientes -->
+                <Border Grid.Column="1"
+                        StrokeShape="RoundRectangle 12"
+                        BackgroundColor="{AppThemeBinding Light=#D32F2F, Dark=#8A1C1C}"
+                        Padding="16">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Total Pendiente"
+                               TextColor="White"
+                               FontSize="12"
+                               Opacity="0.8" />
+                        <Label x:Name="LblTotalPendiente"
+                               Text="$ 0,00"
+                               TextColor="White"
+                               FontSize="20"
+                               FontAttributes="Bold" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- ALERTAS DE VENCIMIENTOS -->
+            <Border StrokeShape="RoundRectangle 12"
+                    Padding="16"
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#2D2D2D}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Estado de Facturas"
+                           FontSize="16"
+                           FontAttributes="Bold" />
+
+                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="6">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Facturas por vencer:" FontSize="13" />
+                        <Label Grid.Row="0" Grid.Column="1" x:Name="LblFacturasPorVencer" Text="0" FontAttributes="Bold" TextColor="#E67E22" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="Facturas ya vencidas:" FontSize="13" />
+                        <Label Grid.Row="1" Grid.Column="1" x:Name="LblFacturasVencidas" Text="0" FontAttributes="Bold" TextColor="#E74C3C" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- DESGLOSE POR CATEGORÍA -->
+            <Label Text="Gastos por Categoría (Mes Actual)"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   Margin="0,5,0,0" />
+
+            <CollectionView x:Name="ListaCategoriasView"
+                            SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <Label Text="No hay gastos en este período."
+                           HorizontalOptions="Center"
+                           Margin="0,15"
+                           TextColor="Gray" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border StrokeShape="RoundRectangle 8"
+                                Padding="12"
+                                Margin="0,3"
+                                BackgroundColor="{AppThemeBinding Light=White, Dark=#2D2D2D}">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="6">
+                                <Label Grid.Row="0" Grid.Column="0"
+                                       Text="{Binding Categoria}"
+                                       FontAttributes="Bold"
+                                       FontSize="14" />
+
+                                <Label Grid.Row="0" Grid.Column="1"
+                                       Text="{Binding Total, StringFormat='${0:N2}'}"
+                                       FontAttributes="Bold"
+                                       FontSize="14" />
+
+                                <!-- Barra de progreso visual por rubro -->
+                                <ProgressBar Grid.Row="1" Grid.ColumnSpan="2"
+                                             Progress="{Binding Porcentaje}"
+                                             ProgressColor="#512BD4"
+                                             HeightRequest="6" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
