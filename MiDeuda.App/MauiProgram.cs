@@ -27,7 +27,9 @@ public static class MauiProgram
 
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<FacturasPage>();
-
+        builder.Services.AddTransient<MainPage>();
+        builder.Services.AddTransient<FacturasPage>();
+        builder.Services.AddTransient<ResumenPage>();
         return builder.Build();
     }
 }
