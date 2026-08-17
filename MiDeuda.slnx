@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="MiDeuda.App/MiDeuda.App.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+  <Project Path="MiDeuda.Core/MiDeuda.Core.vbproj" />
+</Solution>
