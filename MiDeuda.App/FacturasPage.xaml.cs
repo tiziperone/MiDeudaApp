@@ -23,7 +23,7 @@ public partial class FacturasPage : ContentPage
     {
         var facturas = _dbService.ObtenerTodasLasFacturas();
 
-        // Forzar refresco visual
+        // Limpieza para refresco reactivo
         ListaFacturasView.ItemsSource = null;
         ListaFacturasView.ItemsSource = facturas;
 
@@ -39,6 +39,45 @@ public partial class FacturasPage : ContentPage
         LblTotalPendiente.Text = totalPendiente.ToString("C", new CultureInfo("es-AR"));
     }
 
+    private async void OnGuardarFacturaClicked(object? sender, EventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(TxtEmisor.Text))
+        {
+            await DisplayAlertAsync("Validación", "Por favor ingresa el nombre del emisor/proveedor.", "Aceptar");
+            TxtEmisor.Focus();
+            return;
+        }
+
+        if (!decimal.TryParse(TxtMonto.Text, out decimal monto) || monto <= 0)
+        {
+            await DisplayAlertAsync("Validación", "Ingresa un monto válido mayor a 0.", "Aceptar");
+            TxtMonto.Focus();
+            return;
+        }
+
+        var nuevaFactura = new Factura
+        {
+            Emisor = TxtEmisor.Text.Trim(),
+            Concepto = string.IsNullOrWhiteSpace(TxtConcepto.Text) ? "Servicio / Factura" : TxtConcepto.Text.Trim(),
+            NroFactura = TxtNumero.Text?.Trim() ?? string.Empty,
+            MontoTotal = monto,
+            TipoMoneda = CboMoneda.SelectedItem?.ToString() ?? "ARS",
+            FechaEmision = DtpEmision.Date ?? DateTime.Today,
+            FechaVencimiento = DtpVencimiento.Date ?? DateTime.Today,
+            EstadoPago = "Pendiente"
+        };
+
+        _dbService.GuardarFactura(nuevaFactura);
+
+        TxtEmisor.Text = string.Empty;
+        TxtConcepto.Text = string.Empty;
+        TxtNumero.Text = string.Empty;
+        TxtMonto.Text = string.Empty;
+        TxtEmisor.Focus();
+
+        CargarFacturas();
+    }
+
     private async void OnMarcarPagadaClicked(object? sender, EventArgs e)
     {
         if (sender is Button btn && btn.CommandParameter is Factura factura)
@@ -48,15 +87,20 @@ public partial class FacturasPage : ContentPage
                 return;
             }
 
-            bool confirmar = await DisplayAlertAsync("Confirmar Pago", $"¿Deseas marcar la factura de {factura.Emisor} por ${factura.MontoTotal:N2} como pagada?", "Sí, Pagar", "Cancelar");
+            bool confirmar = await DisplayAlertAsync(
+                "Confirmar Pago",
+                $"¿Deseas marcar la factura de {factura.Emisor} por ${factura.MontoTotal:N2} como pagada?",
+                "Sí, Pagar",
+                "Cancelar"
+            );
 
             if (confirmar)
             {
-                // 1. Marcar como Pagado
+                // 1. Cambiar estado a Pagado
                 factura.EstadoPago = "Pagado";
                 _dbService.GuardarFactura(factura);
 
-                // 2. Registrar el gasto correspondiente en la base de datos
+                // 2. Registrar automáticamente el gasto correspondiente en SQLite
                 var gastoFactura = new Gasto
                 {
                     Descripcion = $"Pago Factura: {factura.Emisor} ({factura.Concepto})",
@@ -67,7 +111,7 @@ public partial class FacturasPage : ContentPage
                 };
                 _dbService.GuardarGasto(gastoFactura);
 
-                // 3. Recargar la lista
+                // 3. Actualizar la vista
                 CargarFacturas();
             }
         }

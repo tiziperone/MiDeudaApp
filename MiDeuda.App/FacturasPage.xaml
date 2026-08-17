@@ -89,21 +89,21 @@
                    Margin="0,10,0,0" />
 
             <CollectionView x:Name="ListaFacturasView"
-                SelectionMode="None">
+                            SelectionMode="None">
                 <CollectionView.EmptyView>
                     <Label Text="No hay facturas registradas."
-               HorizontalOptions="Center"
-               Margin="0,20"
-               TextColor="Gray" />
+                           HorizontalOptions="Center"
+                           Margin="0,20"
+                           TextColor="Gray" />
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Border StrokeShape="RoundRectangle 8"
-                    Padding="12"
-                    Margin="0,4"
-                    BackgroundColor="{AppThemeBinding Light=White, Dark=#2D2D2D}">
+                                Padding="12"
+                                Margin="0,4"
+                                BackgroundColor="{AppThemeBinding Light=White, Dark=#2D2D2D}">
                             <Border.Triggers>
-                                <DataTrigger TargetType="Border" Binding="{Binding Estado}" Value="Pagado">
+                                <DataTrigger TargetType="Border" Binding="{Binding EstadoPago}" Value="Pagado">
                                     <Setter Property="Opacity" Value="0.45" />
                                 </DataTrigger>
                             </Border.Triggers>
@@ -112,24 +112,24 @@
 
                                 <!-- Emisor (Tachado si está pagado) -->
                                 <Label Grid.Row="0" Grid.Column="0"
-                           Text="{Binding Emisor}"
-                           FontAttributes="Bold"
-                           FontSize="16">
+                                       Text="{Binding Emisor}"
+                                       FontAttributes="Bold"
+                                       FontSize="16">
                                     <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding Estado}" Value="Pagado">
+                                        <DataTrigger TargetType="Label" Binding="{Binding EstadoPago}" Value="Pagado">
                                             <Setter Property="TextDecorations" Value="Strikethrough" />
                                         </DataTrigger>
                                     </Label.Triggers>
                                 </Label>
 
-                                <!-- Monto (Tachado si está pagado) -->
+                                <!-- Monto (Tachado y verde si está pagado) -->
                                 <Label Grid.Row="0" Grid.Column="1"
-                           Text="{Binding MontoTotal, StringFormat='${0:N2}'}"
-                           FontAttributes="Bold"
-                           FontSize="16"
-                           TextColor="#E74C3C">
+                                       Text="{Binding MontoTotal, StringFormat='${0:N2}'}"
+                                       FontAttributes="Bold"
+                                       FontSize="16"
+                                       TextColor="#E74C3C">
                                     <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding Estado}" Value="Pagado">
+                                        <DataTrigger TargetType="Label" Binding="{Binding EstadoPago}" Value="Pagado">
                                             <Setter Property="TextDecorations" Value="Strikethrough" />
                                             <Setter Property="TextColor" Value="#2ECC71" />
                                         </DataTrigger>
@@ -138,27 +138,27 @@
 
                                 <!-- Concepto -->
                                 <Label Grid.Row="1" Grid.Column="0"
-                           Text="{Binding Concepto}"
-                           FontSize="13" />
+                                       Text="{Binding Concepto}"
+                                       FontSize="13" />
 
                                 <!-- Fecha de Vencimiento -->
                                 <Label Grid.Row="2" Grid.Column="0"
-                           Text="{Binding FechaVencimiento, StringFormat='Vence: {0:dd/MM/yyyy}'}"
-                           FontSize="11"
-                           TextColor="Gray" />
+                                       Text="{Binding FechaVencimiento, StringFormat='Vence: {0:dd/MM/yyyy}'}"
+                                       FontSize="11"
+                                       TextColor="Gray" />
 
                                 <!-- Botón de Pagar / Pagado -->
                                 <Button Grid.Row="2" Grid.Column="1"
-                            Text="Pagar"
-                            FontSize="11"
-                            HeightRequest="32"
-                            Padding="12,0"
-                            BackgroundColor="#2ECC71"
-                            TextColor="White"
-                            Clicked="OnMarcarPagadaClicked"
-                            CommandParameter="{Binding .}">
+                                        Text="Pagar"
+                                        FontSize="11"
+                                        HeightRequest="32"
+                                        Padding="12,0"
+                                        BackgroundColor="#2ECC71"
+                                        TextColor="White"
+                                        Clicked="OnMarcarPagadaClicked"
+                                        CommandParameter="{Binding .}">
                                     <Button.Triggers>
-                                        <DataTrigger TargetType="Button" Binding="{Binding Estado}" Value="Pagado">
+                                        <DataTrigger TargetType="Button" Binding="{Binding EstadoPago}" Value="Pagado">
                                             <Setter Property="Text" Value="Pagado" />
                                             <Setter Property="BackgroundColor" Value="#555555" />
                                             <Setter Property="TextColor" Value="#AAAAAA" />
