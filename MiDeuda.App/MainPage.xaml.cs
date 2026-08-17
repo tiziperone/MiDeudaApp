@@ -77,4 +77,27 @@ public partial class MainPage : ContentPage
         // 6. Actualizar la lista en pantalla
         CargarGastos();
     }
+
+    private async void OnEliminarGastoInvoked(object? sender, EventArgs e)
+    {
+        if (sender is SwipeItem swipeItem && swipeItem.CommandParameter is Gasto gasto)
+        {
+            bool confirmar = await DisplayAlertAsync(
+                "Eliminar Gasto",
+                $"¿Estás seguro de eliminar el gasto \"{gasto.Descripcion}\" de ${gasto.Monto:N2}?",
+                "Sí, Eliminar",
+                "Cancelar"
+            );
+
+            if (confirmar)
+            {
+                // Llama al método de eliminación en VB.NET (DatabaseService)
+                _dbService.EliminarGasto(gasto.Id);
+
+                // Recargar la lista y el total acumulado
+                CargarGastos();
+            }
+        }
+    }
+
 }
