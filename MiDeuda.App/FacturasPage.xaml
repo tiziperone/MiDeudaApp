@@ -89,89 +89,96 @@
                    Margin="0,10,0,0" />
 
             <CollectionView x:Name="ListaFacturasView"
-                            SelectionMode="None">
+                SelectionMode="None">
                 <CollectionView.EmptyView>
                     <Label Text="No hay facturas registradas."
-                           HorizontalOptions="Center"
-                           Margin="0,20"
-                           TextColor="Gray" />
+               HorizontalOptions="Center"
+               Margin="0,20"
+               TextColor="Gray" />
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border StrokeShape="RoundRectangle 8"
-                                Padding="12"
-                                Margin="0,4"
-                                BackgroundColor="{AppThemeBinding Light=White, Dark=#2D2D2D}">
-                            <Border.Triggers>
-                                <DataTrigger TargetType="Border" Binding="{Binding EstadoPago}" Value="Pagado">
-                                    <Setter Property="Opacity" Value="0.45" />
-                                </DataTrigger>
-                            </Border.Triggers>
+                        <SwipeView>
+                            <!-- Acción al deslizar: Eliminar -->
+                            <SwipeView.RightItems>
+                                <SwipeItems Mode="Reveal">
+                                    <SwipeItem Text="Eliminar"
+                                   BackgroundColor="#E74C3C"
+                                   Invoked="OnEliminarFacturaInvoked"
+                                   CommandParameter="{Binding .}" />
+                                </SwipeItems>
+                            </SwipeView.RightItems>
 
-                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
+                            <!-- Tarjeta de Factura -->
+                            <Border StrokeShape="RoundRectangle 8"
+                        Padding="12"
+                        Margin="0,4"
+                        BackgroundColor="{AppThemeBinding Light=White, Dark=#2D2D2D}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding EstadoPago}" Value="Pagado">
+                                        <Setter Property="Opacity" Value="0.45" />
+                                    </DataTrigger>
+                                </Border.Triggers>
 
-                                <!-- Emisor (Tachado si está pagado) -->
-                                <Label Grid.Row="0" Grid.Column="0"
-                                       Text="{Binding Emisor}"
-                                       FontAttributes="Bold"
-                                       FontSize="16">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding EstadoPago}" Value="Pagado">
-                                            <Setter Property="TextDecorations" Value="Strikethrough" />
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
 
-                                <!-- Monto (Tachado y verde si está pagado) -->
-                                <Label Grid.Row="0" Grid.Column="1"
-                                       Text="{Binding MontoTotal, StringFormat='${0:N2}'}"
-                                       FontAttributes="Bold"
-                                       FontSize="16"
-                                       TextColor="#E74C3C">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding EstadoPago}" Value="Pagado">
-                                            <Setter Property="TextDecorations" Value="Strikethrough" />
-                                            <Setter Property="TextColor" Value="#2ECC71" />
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
+                                    <Label Grid.Row="0" Grid.Column="0"
+                               Text="{Binding Emisor}"
+                               FontAttributes="Bold"
+                               FontSize="16">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding EstadoPago}" Value="Pagado">
+                                                <Setter Property="TextDecorations" Value="Strikethrough" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
 
-                                <!-- Concepto -->
-                                <Label Grid.Row="1" Grid.Column="0"
-                                       Text="{Binding Concepto}"
-                                       FontSize="13" />
+                                    <Label Grid.Row="0" Grid.Column="1"
+                               Text="{Binding MontoTotal, StringFormat='${0:N2}'}"
+                               FontAttributes="Bold"
+                               FontSize="16"
+                               TextColor="#E74C3C">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding EstadoPago}" Value="Pagado">
+                                                <Setter Property="TextDecorations" Value="Strikethrough" />
+                                                <Setter Property="TextColor" Value="#2ECC71" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
 
-                                <!-- Fecha de Vencimiento -->
-                                <Label Grid.Row="2" Grid.Column="0"
-                                       Text="{Binding FechaVencimiento, StringFormat='Vence: {0:dd/MM/yyyy}'}"
-                                       FontSize="11"
-                                       TextColor="Gray" />
+                                    <Label Grid.Row="1" Grid.Column="0"
+                               Text="{Binding Concepto}"
+                               FontSize="13" />
 
-                                <!-- Botón de Pagar / Pagado -->
-                                <Button Grid.Row="2" Grid.Column="1"
-                                        Text="Pagar"
-                                        FontSize="11"
-                                        HeightRequest="32"
-                                        Padding="12,0"
-                                        BackgroundColor="#2ECC71"
-                                        TextColor="White"
-                                        Clicked="OnMarcarPagadaClicked"
-                                        CommandParameter="{Binding .}">
-                                    <Button.Triggers>
-                                        <DataTrigger TargetType="Button" Binding="{Binding EstadoPago}" Value="Pagado">
-                                            <Setter Property="Text" Value="Pagado" />
-                                            <Setter Property="BackgroundColor" Value="#555555" />
-                                            <Setter Property="TextColor" Value="#AAAAAA" />
-                                            <Setter Property="IsEnabled" Value="False" />
-                                        </DataTrigger>
-                                    </Button.Triggers>
-                                </Button>
-                            </Grid>
-                        </Border>
+                                    <Label Grid.Row="2" Grid.Column="0"
+                               Text="{Binding FechaVencimiento, StringFormat='Vence: {0:dd/MM/yyyy}'}"
+                               FontSize="11"
+                               TextColor="Gray" />
+
+                                    <Button Grid.Row="2" Grid.Column="1"
+                                Text="Pagar"
+                                FontSize="11"
+                                HeightRequest="32"
+                                Padding="12,0"
+                                BackgroundColor="#2ECC71"
+                                TextColor="White"
+                                Clicked="OnMarcarPagadaClicked"
+                                CommandParameter="{Binding .}">
+                                        <Button.Triggers>
+                                            <DataTrigger TargetType="Button" Binding="{Binding EstadoPago}" Value="Pagado">
+                                                <Setter Property="Text" Value="Pagado" />
+                                                <Setter Property="BackgroundColor" Value="#555555" />
+                                                <Setter Property="TextColor" Value="#AAAAAA" />
+                                                <Setter Property="IsEnabled" Value="False" />
+                                            </DataTrigger>
+                                        </Button.Triggers>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </SwipeView>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
