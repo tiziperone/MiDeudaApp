@@ -19,6 +19,6 @@ Public Class Gasto
     Public Property Moneda As String
 
     'Tipo de gasto (por ejemplo, comida, transporte, entretenimiento, etc.)
-    Public Property Categoria As String
+    Public Property Categoria As String 'fin
 
 End Class
