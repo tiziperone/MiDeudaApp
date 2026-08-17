@@ -21,6 +21,9 @@
                 ContentTemplate="{DataTemplate local:FacturasPage}"
                 Route="FacturasPage" />
         </Tab>
+        <Tab Title="Resumen" Icon="dotnet_bot.png">
+            <ShellContent Title="Resumen" ContentTemplate="{DataTemplate local:ResumenPage}" Route="ResumenPage" />
+        </Tab>
     </TabBar>
 
 </Shell>
