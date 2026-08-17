@@ -19,7 +19,7 @@ Public Class Factura
     Public Property MontoTotal As Decimal
 
     'Fecha de emision
-    Public Property FechaEmidion As DateTime
+    Public Property FechaEmision As DateTime
 
     'Fecha vencimiento
     Public Property FechaVencimiento As DateTime
