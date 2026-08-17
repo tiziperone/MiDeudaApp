@@ -120,7 +120,7 @@
                                        TextColor="#E74C3C" />
 
                                 <Label Grid.Row="1" Grid.Column="0"
-                                       Text="{Binding Gasto, StringFormat='Categoría: {0}'}"
+                                       Text="{Binding Categoria, StringFormat='Categoría: {0}'}"
                                        FontSize="12"
                                        TextColor="Gray" />
 

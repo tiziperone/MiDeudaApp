@@ -40,48 +40,41 @@ public partial class MainPage : ContentPage
 
     private async void OnGuardarGastoClicked(object? sender, EventArgs e)
     {
-        // Validación de descripción
+        // 1. Validar descripción
         if (string.IsNullOrWhiteSpace(TxtDescripcion.Text))
         {
-            await DisplayAlert("Validación", "Por favor ingresa una descripción para el gasto.", "Aceptar");
+            await DisplayAlertAsync("Validación", "Por favor ingresa una descripción para el gasto.", "Aceptar");
             TxtDescripcion.Focus();
             return;
         }
 
-        // Validación y conversión de monto
-        if (!decimal.TryParse(TxtMonto.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal monto) &&
-            !decimal.TryParse(TxtMonto.Text, out monto))
+        // 2. Validar formato y valor del monto
+        if (!decimal.TryParse(TxtMonto.Text, out decimal monto) || monto <= 0)
         {
-            await DisplayAlert("Validación", "Ingresa un monto numérico válido.", "Aceptar");
+            await DisplayAlertAsync("Validación", "Ingresa un monto numérico válido y mayor a 0.", "Aceptar");
             TxtMonto.Focus();
             return;
         }
 
-        if (monto <= 0)
-        {
-            await DisplayAlert("Validación", "El monto debe ser mayor a 0.", "Aceptar");
-            return;
-        }
-
-        // Creación del objeto de MiDeuda.Core (VB.NET)
+        // 3. Creación del objeto resolviendo el tipo anulable de la fecha
         var nuevoGasto = new Gasto
         {
             Descripcion = TxtDescripcion.Text.Trim(),
             Monto = monto,
             Moneda = CboMoneda.SelectedItem?.ToString() ?? "ARS",
             Categoria = CboCategoria.SelectedItem?.ToString() ?? "Varios",
-            Fecha = FechaEmision.Date
+            Fecha = DtpFecha.Date ?? DateTime.Today
         };
 
-        // Guardar en base de datos SQLite
+        // 4. Guardar en SQLite
         _dbService.GuardarGasto(nuevoGasto);
 
-        // Limpiar campos del formulario
+        // 5. Limpiar formulario
         TxtDescripcion.Text = string.Empty;
         TxtMonto.Text = string.Empty;
         TxtDescripcion.Focus();
 
-        // Actualizar la lista en pantalla
+        // 6. Actualizar la lista en pantalla
         CargarGastos();
     }
 }
