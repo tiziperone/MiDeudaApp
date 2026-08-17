@@ -1,24 +1,36 @@
-﻿namespace MiDeuda.App
+﻿using MiDeuda.Core;
+
+namespace MiDeuda.App;
+
+public partial class MainPage : ContentPage
 {
-    public partial class MainPage : ContentPage
+    private readonly DatabaseService _dbService;
+
+    // Recibe el servicio automáticamente por inyector de dependencias
+    public MainPage(DatabaseService dbService)
     {
-        int count = 0;
+        InitializeComponent();
+        _dbService = dbService;
+    }
 
-        public MainPage()
+    private void OnCounterClicked(object? sender, EventArgs e)
+    {
+        // Prueba de inserción
+        var nuevoGasto = new Gasto
         {
-            InitializeComponent();
-        }
+            Descripcion = "Gasto de prueba",
+            Monto = 1500.50m,
+            Fecha = DateTime.Now,
+            Moneda = "ARS",
+            Categoria = "General"
+        };
 
-        private void OnCounterClicked(object? sender, EventArgs e)
-        {
-            count++;
+        _dbService.GuardarGasto(nuevoGasto);
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
+        // Verificamos cuántos hay guardados
+        var total = _dbService.ObtenerTodosLosGastos().Count;
 
-            SemanticScreenReader.Announce(CounterBtn.Text);
-        }
+        BtnPrueba.Text = $"Gastos guardados en SQLite: {total}";
+        SemanticScreenReader.Announce(BtnPrueba.Text);
     }
 }
