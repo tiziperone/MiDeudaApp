@@ -116,4 +116,26 @@ public partial class FacturasPage : ContentPage
             }
         }
     }
+
+    private async void OnEliminarFacturaInvoked(object? sender, EventArgs e)
+    {
+        if (sender is SwipeItem swipeItem && swipeItem.CommandParameter is Factura factura)
+        {
+            bool confirmar = await DisplayAlertAsync(
+                "Eliminar Factura",
+                $"¿Deseas eliminar la factura de {factura.Emisor} por ${factura.MontoTotal:N2}?",
+                "Sí, Eliminar",
+                "Cancelar"
+            );
+
+            if (confirmar)
+            {
+                // Llama a EliminarFactura en DatabaseService.vb
+                _dbService.EliminarFactura(factura.Id);
+
+                // Recargar la lista y el total de pendientes
+                CargarFacturas();
+            }
+        }
+    }
 }

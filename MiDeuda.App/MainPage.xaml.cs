@@ -26,6 +26,7 @@ public partial class MainPage : ContentPage
         var gastos = _dbService.ObtenerTodosLosGastos();
 
         // 2. Asignar la lista a la vista
+        ListaGastosView.ItemsSource = null;
         ListaGastosView.ItemsSource = gastos;
 
         // 3. Calcular el total acumulado
@@ -99,5 +100,4 @@ public partial class MainPage : ContentPage
             }
         }
     }
-
 }
