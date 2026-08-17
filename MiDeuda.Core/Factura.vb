@@ -30,4 +30,11 @@ Public Class Factura
     'Estado del pago (pagado, pendiente, vencido)
     Public Property EstadoPago As String
 
+    <Ignore>
+    Public ReadOnly Property EsPagada As Boolean
+        Get
+            Return EstadoPago = "Pagado"
+        End Get
+    End Property
+
 End Class
