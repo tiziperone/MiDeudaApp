@@ -13,7 +13,6 @@
 
     <Grid RowDefinitions="Auto,*" MaximumWidthRequest="480" HorizontalOptions="Center">
 
-        <!-- EL TRUCO: Fuerza el ancho máximo siempre -->
         <BoxView Grid.Row="0" WidthRequest="500" HeightRequest="0" />
 
         <VerticalStackLayout Grid.Row="0" Padding="16,24,16,10" Spacing="20">
@@ -23,31 +22,56 @@
                    FontAttributes="Bold" 
                    TextColor="{AppThemeBinding Light=#111827, Dark=#F9FAFB}"/>
 
-            <!-- Filtro de Periodo -->
-            <Border StrokeThickness="1" 
-                    StrokeShape="RoundRectangle 12" 
-                    Stroke="{AppThemeBinding Light=#E5E7EB, Dark=#334155}"
-                    BackgroundColor="{AppThemeBinding Light=White, Dark=#1E293B}" 
-                    Padding="16,6">
-                <Picker x:Name="CboPeriodo"
-                        Title="📅 Mostrar gastos de..."
-                        FontSize="15"
-                        FontAttributes="Bold"
-                        BackgroundColor="Transparent"
-                        SelectedIndexChanged="OnPeriodoChanged">
-                    <Picker.ItemsSource>
-                        <x:Array Type="{x:Type x:String}">
-                            <x:String>Esta Semana</x:String>
-                            <x:String>Esta Quincena</x:String>
-                            <x:String>Este Mes</x:String>
-                            <x:String>Este Bimestre</x:String>
-                            <x:String>Histórico (Todos)</x:String>
-                        </x:Array>
-                    </Picker.ItemsSource>
-                </Picker>
-            </Border>
+            <!-- Filtros: Periodo y Moneda -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
 
-            <!-- Tarjeta de Total del Periodo (Gradiente Cálido) -->
+                <Border Grid.Column="0"
+                        StrokeThickness="1" 
+                        StrokeShape="RoundRectangle 12" 
+                        Stroke="{AppThemeBinding Light=#E5E7EB, Dark=#334155}"
+                        BackgroundColor="{AppThemeBinding Light=White, Dark=#1E293B}" 
+                        Padding="12,6">
+                    <Picker x:Name="CboPeriodo"
+                            Title="📅 Periodo..."
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            BackgroundColor="Transparent"
+                            SelectedIndexChanged="OnFiltroChanged">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Esta Semana</x:String>
+                                <x:String>Esta Quincena</x:String>
+                                <x:String>Este Mes</x:String>
+                                <x:String>Este Bimestre</x:String>
+                                <x:String>Histórico (Todos)</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </Border>
+
+                <Border Grid.Column="1"
+                        StrokeThickness="1" 
+                        StrokeShape="RoundRectangle 12" 
+                        Stroke="{AppThemeBinding Light=#E5E7EB, Dark=#334155}"
+                        BackgroundColor="{AppThemeBinding Light=White, Dark=#1E293B}" 
+                        Padding="12,6">
+                    <Picker x:Name="CboMonedaVista"
+                            Title="💵 Moneda..."
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            BackgroundColor="Transparent"
+                            SelectedIndexChanged="OnFiltroChanged">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Ver en ARS</x:String>
+                                <x:String>Ver en USD</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </Border>
+            </Grid>
+
+            <!-- Tarjeta Total Periodo -->
             <Border StrokeThickness="0" StrokeShape="RoundRectangle 24" Padding="24">
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -71,9 +95,8 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Título con Subtítulo Dinámico y Botón Borrar -->
+            <!-- Título y Botón Borrar Todo -->
             <Grid ColumnDefinitions="*,Auto" Margin="4,10,0,0" VerticalOptions="Center">
-
                 <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
                     <Label Text="Desglose por Categoría" 
                            FontSize="18" 
@@ -81,7 +104,6 @@
                            TextColor="{AppThemeBinding Light=#374151, Dark=#94A3B8}" 
                            VerticalOptions="Center"/>
 
-                    <!-- Subtítulo sutil que cambia por código -->
                     <Label x:Name="LblSubtituloPeriodo"
                            Text="(Mensual)" 
                            FontSize="14" 
@@ -131,7 +153,6 @@
                             Padding="16" 
                             BackgroundColor="{AppThemeBinding Light=White, Dark=#1E293B}">
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" VerticalOptions="Center">
-                            <!-- Color Categoria -->
                             <BoxView Grid.Column="0" 
                                      WidthRequest="4" 
                                      CornerRadius="2" 

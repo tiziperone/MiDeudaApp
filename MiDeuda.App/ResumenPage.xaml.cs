@@ -16,43 +16,57 @@ public partial class ResumenPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        // Selecciona "Este Mes" (índice 2) por defecto al entrar
+
+        // Valores por defecto
         if (CboPeriodo.SelectedIndex == -1)
-            CboPeriodo.SelectedIndex = 2;
-        else
-            CargarResumen();
+        {
+            CboPeriodo.SelectedIndex = 2; // "Este Mes"
+        }
+
+        if (CboMonedaVista != null && CboMonedaVista.SelectedIndex == -1)
+        {
+            CboMonedaVista.SelectedIndex = 0; // "Ver en ARS"
+        }
+
+        CargarResumen();
     }
 
-    private void OnPeriodoChanged(object sender, EventArgs e)
+    private void OnPeriodoChanged(object? sender, EventArgs e)
     {
         CargarResumen();
     }
 
-    private void CargarResumen()
+    private void OnFiltroChanged(object? sender, EventArgs e)
+    {
+        CargarResumen();
+    }
+
+    private async void CargarResumen()
     {
         var todosLosGastos = _dbService.ObtenerTodosLosGastos();
-        if (todosLosGastos == null) return;
+        if (todosLosGastos == null)
+        {
+            return;
+        }
 
         DateTime fechaInicio = DateTime.MinValue;
         DateTime hoy = DateTime.Today;
         int index = CboPeriodo.SelectedIndex;
+        string textoSubtitulo = string.Empty;
 
-        string textoSubtitulo = ""; // Variable para guardar el texto sutil
-
-        // 0: Semana, 1: Quincena, 2: Mes, 3: Bimestre, 4: Histórico
+        // 1. EVALUAR EL PERIODO
         switch (index)
         {
-            case 0: // Esta Semana
+            case 0: // Esta Semana (Lunes a Domingo)
                 int diff = (7 + (hoy.DayOfWeek - DayOfWeek.Monday)) % 7;
                 fechaInicio = hoy.AddDays(-1 * diff).Date;
                 textoSubtitulo = "(Semanal)";
                 break;
 
-            case 1: // Esta Quincena
-                if (hoy.Day <= 15)
-                    fechaInicio = new DateTime(hoy.Year, hoy.Month, 1);
-                else
-                    fechaInicio = new DateTime(hoy.Year, hoy.Month, 16);
+            case 1: // Esta Quincena (Días 1 al 15, o 16 hasta fin de mes)
+                fechaInicio = hoy.Day <= 15
+                    ? new DateTime(hoy.Year, hoy.Month, 1)
+                    : new DateTime(hoy.Year, hoy.Month, 16);
                 textoSubtitulo = "(Quincenal)";
                 break;
 
@@ -67,37 +81,69 @@ public partial class ResumenPage : ContentPage
                 textoSubtitulo = "(Bimestral)";
                 break;
 
-            case 4: // Histórico
+            case 4: // Histórico (Todos)
                 fechaInicio = DateTime.MinValue;
                 textoSubtitulo = "(Histórico)";
                 break;
         }
 
-        // Actualizamos la etiqueta sutil de la vista
-        LblSubtituloPeriodo.Text = textoSubtitulo;
+        if (LblSubtituloPeriodo != null)
+        {
+            LblSubtituloPeriodo.Text = textoSubtitulo;
+        }
 
-        // Filtrar los gastos
+        // 2. FILTRAR GASTOS POR FECHA
         var gastosFiltrados = todosLosGastos
             .Where(g => g.Fecha.Date >= fechaInicio && g.Fecha.Date <= hoy)
             .ToList();
 
-        // Controlar el botón de "Borrar Todo"
-        BtnBorrarTodo.IsVisible = gastosFiltrados.Count > 0;
+        if (BtnBorrarTodo != null)
+        {
+            BtnBorrarTodo.IsVisible = gastosFiltrados.Count > 0;
+        }
 
-        // Calcular el total
-        decimal totalPeriodo = gastosFiltrados.Sum(g => g.MontoEnPesos);
-        LblTotalResumen.Text = totalPeriodo.ToString("C", new CultureInfo("es-AR"));
+        // 3. EVALUAR MONEDA Y CONVERSIÓN
+        bool verEnUsd = CboMonedaVista != null && CboMonedaVista.SelectedIndex == 1;
+        decimal divisorCotizacion = 1m;
 
-        // Agrupar por categoría en C#
+        if (verEnUsd)
+        {
+            try
+            {
+                divisorCotizacion = await CotizacionService.ObtenerPrecioVentaDolarAsync("oficial");
+            }
+            catch
+            {
+                await DisplayAlert("Sin Conexión", "No se pudo obtener la cotización oficial del dólar. Se mostrará en Pesos.", "OK");
+                if (CboMonedaVista != null)
+                {
+                    CboMonedaVista.SelectedIndex = 0;
+                }
+                divisorCotizacion = 1m;
+                verEnUsd = false;
+            }
+        }
+
+        // 4. CALCULAR TOTALES Y DESGLOSE
+        decimal totalPeriodoPesos = gastosFiltrados.Sum(g => g.MontoEnPesos);
+        decimal totalFinal = totalPeriodoPesos / divisorCotizacion;
+
+        LblTotalResumen.Text = verEnUsd
+            ? $"USD {totalFinal:N2}"
+            : totalFinal.ToString("C", new CultureInfo("es-AR"));
+
         var categoriasAgrupadas = gastosFiltrados
             .GroupBy(g => g.Categoria)
             .Select(grupo => new CategoriaAgrupada
             {
                 Nombre = grupo.Key,
-                Total = grupo.Sum(x => x.MontoEnPesos),
-                Porcentaje = totalPeriodo > 0
-                             ? (grupo.Sum(x => x.MontoEnPesos) / totalPeriodo).ToString("P1", new CultureInfo("es-AR"))
-                             : "0%"
+                Total = grupo.Sum(x => x.MontoEnPesos) / divisorCotizacion,
+                TotalFormateado = verEnUsd
+                    ? $"USD {(grupo.Sum(x => x.MontoEnPesos) / divisorCotizacion):N2}"
+            :       (grupo.Sum(x => x.MontoEnPesos)).ToString("C", new CultureInfo("es-AR")),
+                Porcentaje = totalPeriodoPesos > 0
+                    ? (grupo.Sum(x => x.MontoEnPesos) / totalPeriodoPesos).ToString("P1", new CultureInfo("es-AR"))
+                    : "0%"
             })
             .OrderByDescending(c => c.Total)
             .ToList();
@@ -105,35 +151,27 @@ public partial class ResumenPage : ContentPage
         ListaCategoriasView.ItemsSource = categoriasAgrupadas;
     }
 
-    private async void OnBorrarTodoClicked(object sender, EventArgs e)
+    private async void OnBorrarTodoClicked(object? sender, EventArgs e)
     {
         bool confirmar = await DisplayAlert(
             "¡Peligro!",
-            "¿Estás seguro de que querés borrar los gastos de este periodo? Se borrarán definitivamente.",
+            "¿Estás seguro de que querés borrar todos los gastos registrados? Esta acción no se puede deshacer.",
             "Sí, borrar",
             "Cancelar"
         );
 
         if (confirmar)
         {
-            // Primero obtenemos los gastos que se están viendo ahora
-            DateTime fechaInicio = DateTime.MinValue;
-            DateTime hoy = DateTime.Today;
-
-            // Repetimos la lógica de fecha para saber qué borrar
-            // (Omito el switch repetido acá para no hacerlo tan largo, pero podés 
-            // usar el mismo cálculo para borrar solo los del rango o directamente borrar todo)
-
-            _dbService.BorrarTodosLosGastos(); // Por ahora borramos todo como en la principal
+            _dbService.BorrarTodosLosGastos();
             CargarResumen();
         }
     }
 }
 
-// Clase auxiliar para la vista
 public class CategoriaAgrupada
 {
-    public string Nombre { get; set; }
+    public string Nombre { get; set; } = string.Empty;
     public decimal Total { get; set; }
-    public string Porcentaje { get; set; }
+    public string Porcentaje { get; set; } = string.Empty;
+    public string TotalFormateado { get; set; } = string.Empty;
 }

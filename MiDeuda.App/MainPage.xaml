@@ -16,7 +16,7 @@
     <Grid RowDefinitions="Auto,*" MaximumWidthRequest="480" HorizontalOptions="Center">
 
         <BoxView Grid.Row="0" WidthRequest="500" HeightRequest="0" />
-        
+
         <!-- CABECERA FIJA Y FORMULARIO -->
         <VerticalStackLayout Grid.Row="0" Padding="16,24,16,10" Spacing="20">
 
@@ -39,7 +39,6 @@
                 </Border.Shadow>
 
                 <VerticalStackLayout Spacing="8">
-
                     <Label x:Name="LblTituloTotal"
                            Text="Total Gastado Hoy" 
                            TextColor="#E0E7FF" 
@@ -111,7 +110,6 @@
                             </Picker.ItemsSource>
                         </Picker>
 
-                        <!-- Botón modificado para decir "Agregar" -->
                         <Button Grid.Column="2"
                                 Text="Agregar" 
                                 FontSize="15"
@@ -124,7 +122,7 @@
                                 Clicked="OnGuardarGastoClicked" />
                     </Grid>
 
-                    <!-- Etiqueta de conversión que aparece al elegir USD -->
+                    <!-- Etiqueta de conversión USD -->
                     <Label x:Name="LblConversion" 
                            FontSize="12" 
                            TextColor="#10B981" 
@@ -134,39 +132,20 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Título y Botón Borrar Todo -->
-            <Grid ColumnDefinitions="*,Auto" Margin="4,10,0,0" VerticalOptions="Center">
-                <Label Grid.Column="0"
-                       Text="Últimos Movimientos" 
-                       FontSize="18" 
-                       FontAttributes="Bold" 
-                       TextColor="{AppThemeBinding Light=#374151, Dark=#94A3B8}" 
-                       VerticalOptions="Center"/>
-
-                <!-- Botón rediseñado y con nombre -->
-                <Button x:Name="BtnBorrarTodo"
-                        Grid.Column="1"
-                        Text="🗑️ Borrar Todo"
-                        TextColor="{AppThemeBinding Light=#DC2626, Dark=#FCA5A5}"
-                        BackgroundColor="{AppThemeBinding Light=#FEE2E2, Dark=#7F1D1D}"
-                        FontAttributes="Bold"
-                        FontSize="12"
-                        Padding="12,0"
-                        CornerRadius="8"
-                        HeightRequest="32"
-                        Clicked="OnBorrarTodoClicked"
-                        VerticalOptions="Center" 
-                        IsVisible="False" />
-            </Grid>
+            <!-- Título de la lista (limpio, sin botón de borrar) -->
+            <Label Text="Últimos Movimientos" 
+                   FontSize="18" 
+                   FontAttributes="Bold" 
+                   TextColor="{AppThemeBinding Light=#374151, Dark=#94A3B8}" 
+                   Margin="4,10,0,0"/>
         </VerticalStackLayout>
 
         <!-- LISTA ESCROLLEABLE -->
         <CollectionView x:Name="ListaGastosView" 
                         Grid.Row="1" 
-                        SelectionMode="None"
+                        SelectionMode="None" 
                         Margin="0,0,0,20">
 
-            <!-- ItemsLayout agregado para darle espaciado ("aire") a las tarjetas -->
             <CollectionView.ItemsLayout>
                 <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
             </CollectionView.ItemsLayout>
@@ -189,7 +168,6 @@
                             </SwipeItems>
                         </SwipeView.RightItems>
 
-                        <!-- Diseño de cada Item de la lista con margen corregido a 16,0 -->
                         <Border StrokeThickness="0" 
                                 StrokeShape="RoundRectangle 16" 
                                 Margin="16,0" 
@@ -197,11 +175,10 @@
                                 BackgroundColor="{AppThemeBinding Light=White, Dark=#1E293B}">
 
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-
                                 <!-- Indicador de color de Categoría -->
                                 <BoxView Grid.Column="0" 
                                          WidthRequest="4" 
-                                         CornerRadius="2"
+                                         CornerRadius="2" 
                                          BackgroundColor="{Binding Categoria, Converter={StaticResource CatColorConverter}}" />
 
                                 <!-- Detalle Izquierda -->
@@ -220,7 +197,6 @@
                                 <!-- Montos Derecha -->
                                 <VerticalStackLayout Grid.Column="2" Spacing="2" VerticalOptions="Center" HorizontalOptions="End">
                                     <HorizontalStackLayout Spacing="4" HorizontalOptions="End">
-                                        <!-- Badge de Moneda -->
                                         <Border StrokeThickness="0" StrokeShape="RoundRectangle 6" BackgroundColor="{AppThemeBinding Light=#EEF2FF, Dark=#312E81}" Padding="4,2" VerticalOptions="Center">
                                             <Label Text="{Binding Moneda}" FontSize="10" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#4F46E5, Dark=#A5B4FC}"/>
                                         </Border>

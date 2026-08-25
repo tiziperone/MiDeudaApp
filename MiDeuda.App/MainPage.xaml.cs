@@ -16,25 +16,23 @@ public partial class MainPage : ContentPage
         CboMoneda.SelectedIndex = 0;
         CboCategoria.SelectedIndex = 0;
 
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
         CargarGastos();
     }
 
     private void CargarGastos()
     {
-        // 1. Obtenemos todos los gastos
         var gastos = _dbService.ObtenerTodosLosGastos();
 
-        // 2. Cargamos la lista
         ListaGastosView.ItemsSource = null;
         ListaGastosView.ItemsSource = gastos;
 
-        // 3. MOSTRAMOS U OCULTAMOS EL BOTÓN
-        bool hayGastos = gastos != null && gastos.Count > 0;
-        BtnBorrarTodo.IsVisible = hayGastos;
-
-        // 4. Calculamos el total SOLO de hoy
         decimal totalHoyEnPesos = 0;
-        if (hayGastos)
+        if (gastos != null && gastos.Count > 0)
         {
             foreach (var g in gastos)
             {
@@ -45,7 +43,6 @@ public partial class MainPage : ContentPage
             }
         }
 
-        // 5. Actualizamos los textos
         LblTotalGastos.Text = totalHoyEnPesos.ToString("C", new CultureInfo("es-AR"));
         LblTituloTotal.Text = $"Total Gastado (Hoy, {DateTime.Today:dd/MM})";
     }
@@ -152,19 +149,4 @@ public partial class MainPage : ContentPage
         }
     }
 
-    private async void OnBorrarTodoClicked(object sender, EventArgs e)
-    {
-        bool confirmar = await DisplayAlert(
-            "¡Atención!",
-            "¿Estás seguro de que querés borrar TODOS los gastos registrados? Esta acción no se puede deshacer.",
-            "Sí, borrar todo",
-            "Cancelar"
-        );
-
-        if (confirmar)
-        {
-            _dbService.BorrarTodosLosGastos();
-            CargarGastos(); // Recarga la lista (quedará vacía)
-        }
-    }
 }
