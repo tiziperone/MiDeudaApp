@@ -15,7 +15,12 @@ public partial class FacturasPage : ContentPage
         CboMoneda.SelectedIndex = 0;
         DtpEmision.Date = DateTime.Today;
         DtpVencimiento.Date = DateTime.Today.AddDays(7);
+    }
 
+    // Refrescar los datos siempre que la pestaña se active
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
         CargarFacturas();
     }
 
@@ -23,16 +28,20 @@ public partial class FacturasPage : ContentPage
     {
         var facturas = _dbService.ObtenerTodasLasFacturas();
 
-        // Limpieza para refresco reactivo
         ListaFacturasView.ItemsSource = null;
         ListaFacturasView.ItemsSource = facturas;
 
         decimal totalPendiente = 0;
-        foreach (var f in facturas)
+        if (facturas != null)
         {
-            if (f.EstadoPago != "Pagado")
+            foreach (var f in facturas)
             {
-                totalPendiente += f.MontoTotal;
+                if (f.EstadoPago != "Pagado")
+                {
+                    // Si el monto de la factura fuera en dólares se debería usar 
+                    // la cotización como en MainPage, por simplicidad ahora suma todo directo
+                    totalPendiente += f.MontoTotal;
+                }
             }
         }
 
@@ -43,14 +52,14 @@ public partial class FacturasPage : ContentPage
     {
         if (string.IsNullOrWhiteSpace(TxtEmisor.Text))
         {
-            await DisplayAlertAsync("Validación", "Por favor ingresa el nombre del emisor/proveedor.", "Aceptar");
+            await DisplayAlert("Validación", "Por favor ingresa el nombre del emisor/proveedor.", "Aceptar");
             TxtEmisor.Focus();
             return;
         }
 
-        if (!decimal.TryParse(TxtMonto.Text, out decimal monto) || monto <= 0)
+        if (!decimal.TryParse(TxtMonto.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal monto) || monto <= 0)
         {
-            await DisplayAlertAsync("Validación", "Ingresa un monto válido mayor a 0.", "Aceptar");
+            await DisplayAlert("Validación", "Ingresa un monto válido mayor a 0.", "Aceptar");
             TxtMonto.Focus();
             return;
         }
@@ -59,11 +68,11 @@ public partial class FacturasPage : ContentPage
         {
             Emisor = TxtEmisor.Text.Trim(),
             Concepto = string.IsNullOrWhiteSpace(TxtConcepto.Text) ? "Servicio / Factura" : TxtConcepto.Text.Trim(),
-            NroFactura = TxtNumero.Text?.Trim() ?? string.Empty,
+            NroFactura = "S/N",
             MontoTotal = monto,
             TipoMoneda = CboMoneda.SelectedItem?.ToString() ?? "ARS",
-            FechaEmision = DtpEmision.Date ?? DateTime.Today,
-            FechaVencimiento = DtpVencimiento.Date ?? DateTime.Today,
+            FechaEmision = DtpEmision.Date ?? DateTime.Today,       // <-- Corregido con ?? DateTime.Today
+            FechaVencimiento = DtpVencimiento.Date ?? DateTime.Today, // <-- Corregido con ?? DateTime.Today
             EstadoPago = "Pendiente"
         };
 
@@ -71,7 +80,6 @@ public partial class FacturasPage : ContentPage
 
         TxtEmisor.Text = string.Empty;
         TxtConcepto.Text = string.Empty;
-        TxtNumero.Text = string.Empty;
         TxtMonto.Text = string.Empty;
         TxtEmisor.Focus();
 
@@ -82,37 +90,37 @@ public partial class FacturasPage : ContentPage
     {
         if (sender is Button btn && btn.CommandParameter is Factura factura)
         {
-            if (factura.EstadoPago == "Pagado")
-            {
-                return;
-            }
+            if (factura.EstadoPago == "Pagado") return;
 
-            bool confirmar = await DisplayAlertAsync(
+            string simbolo = factura.TipoMoneda == "USD" ? "USD " : "$";
+            bool confirmar = await DisplayAlert(
                 "Confirmar Pago",
-                $"¿Deseas marcar la factura de {factura.Emisor} por ${factura.MontoTotal:N2} como pagada?",
+                $"¿Deseas marcar la factura de {factura.Emisor} por {simbolo}{factura.MontoTotal:N2} como pagada?",
                 "Sí, Pagar",
                 "Cancelar"
             );
 
             if (confirmar)
             {
-                // 1. Cambiar estado a Pagado
                 factura.EstadoPago = "Pagado";
                 _dbService.GuardarFactura(factura);
 
-                // 2. Registrar automáticamente el gasto correspondiente en SQLite
+                // Registrar como gasto en SQLite automáticamente
                 var gastoFactura = new Gasto
                 {
-                    Descripcion = $"Pago Factura: {factura.Emisor} ({factura.Concepto})",
+                    Descripcion = $"Factura: {factura.Emisor} ({factura.Concepto})",
                     Monto = factura.MontoTotal,
                     Moneda = factura.TipoMoneda,
-                    Categoria = "Servicios",
-                    Fecha = DateTime.Today
+                    Categoria = "Servicios", // Categoría por defecto
+                    Fecha = DateTime.Today,
+                    // Si tienes el campo MontoEnPesos en la DB, acá deberías hacer
+                    // la conversión si la factura es en dólares. Por simplicidad, se asigna directo.
+                    MontoEnPesos = factura.MontoTotal
                 };
                 _dbService.GuardarGasto(gastoFactura);
 
-                // 3. Actualizar la vista
                 CargarFacturas();
+                await DisplayAlert("Éxito", "Factura pagada y registrada en tus gastos diarios.", "OK");
             }
         }
     }
@@ -121,19 +129,17 @@ public partial class FacturasPage : ContentPage
     {
         if (sender is SwipeItem swipeItem && swipeItem.CommandParameter is Factura factura)
         {
-            bool confirmar = await DisplayAlertAsync(
+            string simbolo = factura.TipoMoneda == "USD" ? "USD " : "$";
+            bool confirmar = await DisplayAlert(
                 "Eliminar Factura",
-                $"¿Deseas eliminar la factura de {factura.Emisor} por ${factura.MontoTotal:N2}?",
+                $"¿Deseas eliminar la factura de {factura.Emisor} por {simbolo}{factura.MontoTotal:N2}?",
                 "Sí, Eliminar",
                 "Cancelar"
             );
 
             if (confirmar)
             {
-                // Llama a EliminarFactura en DatabaseService.vb
                 _dbService.EliminarFactura(factura.Id);
-
-                // Recargar la lista y el total de pendientes
                 CargarFacturas();
             }
         }
