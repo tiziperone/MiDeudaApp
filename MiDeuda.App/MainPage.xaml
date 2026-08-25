@@ -94,7 +94,7 @@
 
                         <Picker x:Name="CboMoneda" Grid.Column="1"
                                 Title="ARS" 
-                                WidthRequest="70" 
+                                WidthRequest="95" 
                                 FontSize="14"
                                 FontAttributes="Bold"
                                 BackgroundColor="Transparent"
