@@ -148,4 +148,20 @@ public partial class MainPage : ContentPage
             }
         }
     }
+
+    private async void OnBorrarTodoClicked(object sender, EventArgs e)
+    {
+        bool confirmar = await DisplayAlert(
+            "¡Atención!",
+            "¿Estás seguro de que querés borrar TODOS los gastos registrados? Esta acción no se puede deshacer.",
+            "Sí, borrar todo",
+            "Cancelar"
+        );
+
+        if (confirmar)
+        {
+            _dbService.BorrarTodosLosGastos();
+            CargarGastos(); // Recarga la lista (quedará vacía)
+        }
+    }
 }
