@@ -133,7 +133,7 @@
             </Border>
 
             <!-- Título y Botón Borrar Todo -->
-            <Grid ColumnDefinitions="*,Auto" Margin="4,10,0,0" VerticalOptions="End">
+            <Grid ColumnDefinitions="*,Auto" Margin="4,10,0,0" VerticalOptions="Center">
                 <Label Grid.Column="0"
                        Text="Últimos Movimientos" 
                        FontSize="18" 
@@ -141,16 +141,20 @@
                        TextColor="{AppThemeBinding Light=#374151, Dark=#94A3B8}" 
                        VerticalOptions="Center"/>
 
-                <Button Grid.Column="1"
-                        Text="Borrar Todo"
-                        TextColor="#EF4444"
-                        BackgroundColor="Transparent"
+                <!-- Botón rediseñado y con nombre -->
+                <Button x:Name="BtnBorrarTodo"
+                        Grid.Column="1"
+                        Text="🗑️ Borrar Todo"
+                        TextColor="{AppThemeBinding Light=#DC2626, Dark=#FCA5A5}"
+                        BackgroundColor="{AppThemeBinding Light=#FEE2E2, Dark=#7F1D1D}"
                         FontAttributes="Bold"
-                        FontSize="13"
-                        Padding="8,0"
-                        HeightRequest="30"
+                        FontSize="12"
+                        Padding="12,0"
+                        CornerRadius="8"
+                        HeightRequest="32"
                         Clicked="OnBorrarTodoClicked"
-                        VerticalOptions="Center" />
+                        VerticalOptions="Center" 
+                        IsVisible="False" />
             </Grid>
         </VerticalStackLayout>
 

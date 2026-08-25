@@ -24,17 +24,20 @@ public partial class MainPage : ContentPage
         // 1. Obtenemos todos los gastos
         var gastos = _dbService.ObtenerTodosLosGastos();
 
-        // 2. Cargamos la lista completa abajo (Últimos Movimientos)
+        // 2. Cargamos la lista
         ListaGastosView.ItemsSource = null;
         ListaGastosView.ItemsSource = gastos;
 
-        // 3. Calculamos el total SOLO de hoy
+        // 3. MOSTRAMOS U OCULTAMOS EL BOTÓN
+        bool hayGastos = gastos != null && gastos.Count > 0;
+        BtnBorrarTodo.IsVisible = hayGastos;
+
+        // 4. Calculamos el total SOLO de hoy
         decimal totalHoyEnPesos = 0;
-        if (gastos != null)
+        if (hayGastos)
         {
             foreach (var g in gastos)
             {
-                // Comparamos si la fecha del gasto coincide con la fecha actual
                 if (g.Fecha.Date == DateTime.Today)
                 {
                     totalHoyEnPesos += g.MontoEnPesos;
@@ -42,7 +45,7 @@ public partial class MainPage : ContentPage
             }
         }
 
-        // 4. Actualizamos los textos en pantalla
+        // 5. Actualizamos los textos
         LblTotalGastos.Text = totalHoyEnPesos.ToString("C", new CultureInfo("es-AR"));
         LblTituloTotal.Text = $"Total Gastado (Hoy, {DateTime.Today:dd/MM})";
     }
