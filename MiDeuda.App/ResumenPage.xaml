@@ -3,8 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:MiDeuda.App"
              x:Class="MiDeuda.App.ResumenPage"
-             Title="Balance y Resumen"
-             BackgroundColor="{AppThemeBinding Light=#F5F7FB, Dark=#1E1E1E}">
+             BackgroundColor="{AppThemeBinding Light=#F3F4F6, Dark=#0F172A}">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -12,115 +11,155 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="20">
+    <Grid RowDefinitions="Auto,*" MaximumWidthRequest="480" HorizontalOptions="Center">
 
-            <!-- Tarjetas de Balance -->
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                <Border Grid.Column="0"
-                        StrokeShape="RoundRectangle 12"
-                        BackgroundColor="{AppThemeBinding Light=#512BD4, Dark=#381E8D}"
-                        Padding="16">
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="Gastado Este Mes"
-                               TextColor="White"
-                               FontSize="12"
-                               Opacity="0.8" />
-                        <Label x:Name="LblTotalMes"
-                               Text="$ 0,00"
-                               TextColor="White"
-                               FontSize="20"
-                               FontAttributes="Bold" />
-                    </VerticalStackLayout>
-                </Border>
+        <!-- EL TRUCO: Fuerza el ancho máximo siempre -->
+        <BoxView Grid.Row="0" WidthRequest="500" HeightRequest="0" />
 
-                <Border Grid.Column="1"
-                        StrokeShape="RoundRectangle 12"
-                        BackgroundColor="{AppThemeBinding Light=#D32F2F, Dark=#8A1C1C}"
-                        Padding="16">
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="Total Pendiente"
-                               TextColor="White"
-                               FontSize="12"
-                               Opacity="0.8" />
-                        <Label x:Name="LblTotalPendiente"
-                               Text="$ 0,00"
-                               TextColor="White"
-                               FontSize="20"
-                               FontAttributes="Bold" />
-                    </VerticalStackLayout>
-                </Border>
-            </Grid>
+        <VerticalStackLayout Grid.Row="0" Padding="16,24,16,10" Spacing="20">
 
-            <!-- Alertas de Vencimiento -->
-            <Border StrokeShape="RoundRectangle 12"
-                    Padding="16"
-                    BackgroundColor="{AppThemeBinding Light=White, Dark=#2D2D2D}">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="Estado de Facturas"
-                           FontSize="16"
-                           FontAttributes="Bold" />
+            <Label Text="Análisis de Gastos" 
+                   FontSize="24" 
+                   FontAttributes="Bold" 
+                   TextColor="{AppThemeBinding Light=#111827, Dark=#F9FAFB}"/>
 
-                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="6">
-                        <Label Grid.Row="0" Grid.Column="0" Text="Facturas por vencer:" FontSize="13" />
-                        <Label Grid.Row="0" Grid.Column="1" x:Name="LblFacturasPorVencer" Text="0" FontAttributes="Bold" TextColor="#E67E22" />
+            <!-- Filtro de Periodo -->
+            <Border StrokeThickness="1" 
+                    StrokeShape="RoundRectangle 12" 
+                    Stroke="{AppThemeBinding Light=#E5E7EB, Dark=#334155}"
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#1E293B}" 
+                    Padding="16,6">
+                <Picker x:Name="CboPeriodo"
+                        Title="📅 Mostrar gastos de..."
+                        FontSize="15"
+                        FontAttributes="Bold"
+                        BackgroundColor="Transparent"
+                        SelectedIndexChanged="OnPeriodoChanged">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>Esta Semana</x:String>
+                            <x:String>Esta Quincena</x:String>
+                            <x:String>Este Mes</x:String>
+                            <x:String>Este Bimestre</x:String>
+                            <x:String>Histórico (Todos)</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+            </Border>
 
-                        <Label Grid.Row="1" Grid.Column="0" Text="Facturas ya vencidas:" FontSize="13" />
-                        <Label Grid.Row="1" Grid.Column="1" x:Name="LblFacturasVencidas" Text="0" FontAttributes="Bold" TextColor="#E74C3C" />
-                    </Grid>
+            <!-- Tarjeta de Total del Periodo (Gradiente Cálido) -->
+            <Border StrokeThickness="0" StrokeShape="RoundRectangle 24" Padding="24">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#F43F5E" Offset="0.0"/>
+                        <GradientStop Color="#FB923C" Offset="1.0"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.Shadow>
+                    <Shadow Brush="#F43F5E" Offset="0,8" Radius="16" Opacity="0.3"/>
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Total del periodo seleccionado" 
+                           TextColor="#FFE4E6" 
+                           FontSize="14"/>
+                    <Label x:Name="LblTotalResumen" 
+                           Text="$ 0,00" 
+                           TextColor="White" 
+                           FontSize="36" 
+                           FontAttributes="Bold"/>
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Categorías con Etiquetas y Barras de Color -->
-            <Label Text="Gastos por Categoría (Mes Actual)"
-                   FontSize="16"
-                   FontAttributes="Bold"
-                   Margin="0,5,0,0" />
+            <!-- Título con Subtítulo Dinámico y Botón Borrar -->
+            <Grid ColumnDefinitions="*,Auto" Margin="4,10,0,0" VerticalOptions="Center">
 
-            <CollectionView x:Name="ListaCategoriasView"
-                            SelectionMode="None">
-                <CollectionView.EmptyView>
-                    <Label Text="No hay gastos en este período."
-                           HorizontalOptions="Center"
-                           Margin="0,15"
-                           TextColor="Gray" />
-                </CollectionView.EmptyView>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Border StrokeShape="RoundRectangle 8"
-                                Padding="12"
-                                Margin="0,3"
-                                BackgroundColor="{AppThemeBinding Light=White, Dark=#2D2D2D}">
-                            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" RowSpacing="6">
+                <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
+                    <Label Text="Desglose por Categoría" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="{AppThemeBinding Light=#374151, Dark=#94A3B8}" 
+                           VerticalOptions="Center"/>
 
-                                <!-- Chip de Color -->
-                                <Border Grid.Row="0" Grid.Column="0"
-                                        StrokeShape="RoundRectangle 4"
-                                        BackgroundColor="{Binding Categoria, Converter={StaticResource CatColorConverter}}"
-                                        Padding="6,2"
-                                        Margin="0,0,8,0">
-                                    <Label Text="{Binding Categoria}"
-                                           FontSize="11"
-                                           FontAttributes="Bold"
-                                           TextColor="White" />
-                                </Border>
+                    <!-- Subtítulo sutil que cambia por código -->
+                    <Label x:Name="LblSubtituloPeriodo"
+                           Text="(Mensual)" 
+                           FontSize="14" 
+                           TextColor="Gray" 
+                           VerticalOptions="Center"
+                           Margin="0,2,0,0"/>
+                </HorizontalStackLayout>
 
-                                <Label Grid.Row="0" Grid.Column="2"
-                                       Text="{Binding Total, StringFormat='${0:N2}'}"
-                                       FontAttributes="Bold"
-                                       FontSize="14" />
-
-                                <!-- Barra coloreada según el rubro -->
-                                <ProgressBar Grid.Row="1" Grid.ColumnSpan="3"
-                                             Progress="{Binding Porcentaje}"
-                                             ProgressColor="{Binding Categoria, Converter={StaticResource CatColorConverter}}"
-                                             HeightRequest="6" />
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-
+                <Button x:Name="BtnBorrarTodo"
+                        Grid.Column="1"
+                        Text="🗑️ Borrar Todo"
+                        TextColor="{AppThemeBinding Light=#DC2626, Dark=#FCA5A5}"
+                        BackgroundColor="{AppThemeBinding Light=#FEE2E2, Dark=#7F1D1D}"
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Padding="12,0"
+                        CornerRadius="8"
+                        HeightRequest="32"
+                        Clicked="OnBorrarTodoClicked"
+                        VerticalOptions="Center" 
+                        IsVisible="False" />
+            </Grid>
         </VerticalStackLayout>
-    </ScrollView>
+
+        <!-- Lista de Categorías -->
+        <CollectionView x:Name="ListaCategoriasView" 
+                        Grid.Row="1" 
+                        SelectionMode="None" 
+                        Margin="0,0,0,20">
+
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="12"/>
+            </CollectionView.ItemsLayout>
+
+            <CollectionView.EmptyView>
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10" Margin="0,40,0,0">
+                    <Label Text="📊" FontSize="48" HorizontalOptions="Center"/>
+                    <Label Text="No hay datos para este periodo" TextColor="Gray" FontSize="14"/>
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border StrokeThickness="0" 
+                            StrokeShape="RoundRectangle 16" 
+                            Margin="16,0" 
+                            Padding="16" 
+                            BackgroundColor="{AppThemeBinding Light=White, Dark=#1E293B}">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" VerticalOptions="Center">
+                            <!-- Color Categoria -->
+                            <BoxView Grid.Column="0" 
+                                     WidthRequest="4" 
+                                     CornerRadius="2" 
+                                     BackgroundColor="{Binding Nombre, Converter={StaticResource CatColorConverter}}"/>
+
+                            <Label Grid.Column="1" 
+                                   Text="{Binding Nombre}" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" 
+                                   TextColor="{AppThemeBinding Light=#111827, Dark=#F9FAFB}" 
+                                   VerticalOptions="Center"/>
+
+                            <VerticalStackLayout Grid.Column="2" HorizontalOptions="End" VerticalOptions="Center">
+                                <Label Text="{Binding Total, StringFormat='${0:N2}'}" 
+                                       FontSize="16" 
+                                       FontAttributes="Bold" 
+                                       TextColor="{AppThemeBinding Light=#111827, Dark=#F9FAFB}" 
+                                       HorizontalOptions="End"/>
+                                <Label Text="{Binding Porcentaje}" 
+                                       FontSize="12" 
+                                       FontAttributes="Bold" 
+                                       TextColor="#F43F5E" 
+                                       HorizontalOptions="End"/>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
 </ContentPage>
