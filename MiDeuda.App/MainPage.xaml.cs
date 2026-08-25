@@ -12,30 +12,23 @@ public partial class MainPage : ContentPage
         InitializeComponent();
         _dbService = dbService;
 
-        // Valores iniciales
-        CboMoneda.SelectedIndex = 0; // ARS por defecto
-        CboCategoria.SelectedIndex = 0; // Comida por defecto
-        DtpFecha.Date = DateTime.Today;
+        // Valores por defecto
+        CboMoneda.SelectedIndex = 0;
+        CboCategoria.SelectedIndex = 0;
 
         CargarGastos();
     }
 
     private void CargarGastos()
     {
-        // 1. Obtener los gastos desde SQLite usando MiDeuda.Core (VB.NET)
         var gastos = _dbService.ObtenerTodosLosGastos();
-
-        // 2. Asignar la lista a la vista
-        ListaGastosView.ItemsSource = null;
         ListaGastosView.ItemsSource = gastos;
 
-        // 3. Calcular el total acumulado en base a los montos normalizados en ARS
         decimal totalEnPesos = 0;
         if (gastos != null)
         {
             foreach (var g in gastos)
             {
-                // Suma el equivalente en pesos para no mezclar unidades USD con ARS
                 totalEnPesos += g.MontoEnPesos;
             }
         }
@@ -54,36 +47,34 @@ public partial class MainPage : ContentPage
                 decimal cotizacion = await CotizacionService.ObtenerPrecioVentaDolarAsync("oficial");
                 decimal montoArs = montoUsd * cotizacion;
 
-                LblConversion.Text = $"≈ ${montoArs:N2} ARS (Cotización Oficial: ${cotizacion:N2})";
-                PnlConversion.IsVisible = true;
+                LblConversion.Text = $"≈ ${montoArs:N2} ARS (TC Oficial: ${cotizacion:N2})";
+                LblConversion.IsVisible = true;
             }
             catch
             {
-                LblConversion.Text = "Cotización no disponible sin conexión";
-                PnlConversion.IsVisible = true;
+                LblConversion.Text = "Cotización no disponible";
+                LblConversion.IsVisible = true;
             }
         }
         else
         {
             LblConversion.Text = string.Empty;
-            PnlConversion.IsVisible = false;
+            LblConversion.IsVisible = false;
         }
     }
 
     private async void OnGuardarGastoClicked(object? sender, EventArgs e)
     {
-        // 1. Validar descripción
         if (string.IsNullOrWhiteSpace(TxtDescripcion.Text))
         {
-            await DisplayAlert("Validación", "Ingresa una descripción para el gasto.", "Aceptar");
+            await DisplayAlert("Faltan datos", "Ingresa en qué gastaste el dinero.", "OK");
             TxtDescripcion.Focus();
             return;
         }
 
-        // 2. Validar formato y valor numérico
         if (!decimal.TryParse(TxtMonto.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal monto) || monto <= 0)
         {
-            await DisplayAlert("Validación", "Ingresa un monto numérico válido y mayor a 0.", "Aceptar");
+            await DisplayAlert("Monto inválido", "Ingresa un número mayor a cero.", "OK");
             TxtMonto.Focus();
             return;
         }
@@ -92,7 +83,6 @@ public partial class MainPage : ContentPage
         decimal cotizacion = 1m;
         decimal montoEnPesos = monto;
 
-        // 3. Consultar cotización si la divisa es USD
         if (monedaSeleccionada == "USD")
         {
             try
@@ -102,12 +92,11 @@ public partial class MainPage : ContentPage
             }
             catch
             {
-                await DisplayAlert("Error de Conexión", "No se pudo consultar el valor del dólar. Verifica tu conexión a internet.", "Aceptar");
+                await DisplayAlert("Sin Conexión", "No se pudo obtener el valor del dólar para calcular el total.", "OK");
                 return;
             }
         }
 
-        // 4. Instanciar el objeto de MiDeuda.Core
         var nuevoGasto = new Gasto
         {
             Descripcion = TxtDescripcion.Text.Trim(),
@@ -116,17 +105,15 @@ public partial class MainPage : ContentPage
             CotizacionUsada = cotizacion,
             MontoEnPesos = montoEnPesos,
             Categoria = CboCategoria.SelectedItem?.ToString() ?? "Varios",
-            Fecha = DtpFecha.Date ?? DateTime.Today
+            Fecha = DateTime.Today // Asigna la fecha actual automáticamente
         };
 
-        // 5. Guardar en SQLite mediante VB.NET
         _dbService.GuardarGasto(nuevoGasto);
 
-        // 6. Limpieza y refresco
+        // Limpiar formulario
         TxtDescripcion.Text = string.Empty;
         TxtMonto.Text = string.Empty;
         LblConversion.IsVisible = false;
-        TxtDescripcion.Focus();
 
         CargarGastos();
     }
@@ -135,11 +122,11 @@ public partial class MainPage : ContentPage
     {
         if (sender is SwipeItem swipeItem && swipeItem.CommandParameter is Gasto gasto)
         {
-            string simboloMoneda = gasto.Moneda == "USD" ? "USD " : "$";
+            string simbolo = gasto.Moneda == "USD" ? "U$S " : "$";
             bool confirmar = await DisplayAlert(
-                "Eliminar Gasto",
-                $"¿Deseas eliminar el gasto \"{gasto.Descripcion}\" por {simboloMoneda}{gasto.Monto:N2}?",
-                "Sí, Eliminar",
+                "Borrar Registro",
+                $"¿Borrar \"{gasto.Descripcion}\" por {simbolo}{gasto.Monto:N2}?",
+                "Borrar",
                 "Cancelar"
             );
 
