@@ -54,19 +54,19 @@ public partial class MainPage : ContentPage
                 decimal cotizacion = await CotizacionService.ObtenerPrecioVentaDolarAsync("oficial");
                 decimal montoArs = montoUsd * cotizacion;
 
-                LblConversion.Text = $"≈ ${montoArs:N2} ARS (TC Oficial: ${cotizacion:N2})";
-                LblConversion.IsVisible = true;
+                LblConversion.Text = $"≈ ${montoArs:N2} ARS (Cotización Oficial: ${cotizacion:N2})";
+                PnlConversion.IsVisible = true;
             }
             catch
             {
-                LblConversion.Text = "No se pudo obtener la cotización actual";
-                LblConversion.IsVisible = true;
+                LblConversion.Text = "Cotización no disponible sin conexión";
+                PnlConversion.IsVisible = true;
             }
         }
         else
         {
             LblConversion.Text = string.Empty;
-            LblConversion.IsVisible = false;
+            PnlConversion.IsVisible = false;
         }
     }
 
