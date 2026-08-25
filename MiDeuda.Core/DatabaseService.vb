@@ -8,7 +8,7 @@ Public Class DatabaseService
     Public Sub New(dbPath As String)
         _db = New SQLiteConnection(dbPath)
 
-        ' Crea las tablas automáticamente si no existen
+        ' Crea las tablas automáticamente si no existen o actualiza el esquema
         _db.CreateTable(Of Gasto)()
         _db.CreateTable(Of Factura)()
     End Sub
@@ -38,6 +38,11 @@ Public Class DatabaseService
                    Where(Function(g) g.Fecha >= filtro.FechaInicio AndAlso g.Fecha <= filtro.FechaFin).
                    OrderByDescending(Function(g) g.Fecha).
                    ToList()
+    End Function
+
+    Public Function ObtenerTotalGastosEnPesos() As Decimal
+        Dim gastos = _db.Table(Of Gasto)().ToList()
+        Return gastos.Sum(Function(g) g.MontoEnPesos)
     End Function
 
     Public Function EliminarGasto(id As Integer) As Integer
