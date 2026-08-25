@@ -2,23 +2,28 @@
 
 <Table("Gastos")>
 Public Class Gasto
-    'identificador único del gasto
-    <PrimaryKey, AutoIncrement> 'indican al motor de base de datos cómo tratar esa columna al crear la tabla
-    Public Property Id As Integer 'Define una propiedad pública en la clase VB.NET llamada Id
+    ' Identificador único autoincremental
+    <PrimaryKey, AutoIncrement>
+    Public Property Id As Integer
 
-    'Concepto o detalle de la compra
+    ' Concepto o detalle de la compra
     Public Property Descripcion As String
 
-    'Monto del gasto
+    ' Monto ingresado por el usuario
     Public Property Monto As Decimal
 
-    'Fecha y hora del gasto para filtrar por periodo
-    Public Property Fecha As DateTime
-
-    'Seleccionar el tipo de moneda
+    ' Moneda ingresada ("ARS" o "USD")
     Public Property Moneda As String
 
-    'Tipo de gasto (por ejemplo, comida, transporte, entretenimiento, etc.)
-    Public Property Categoria As String 'fin
+    ' Tipo de cambio utilizado al momento de registrar el gasto (1 si es ARS)
+    Public Property CotizacionUsada As Decimal
 
+    ' Monto convertido y estandarizado en ARS para cálculos globales
+    Public Property MontoEnPesos As Decimal
+
+    ' Categoría del gasto (Comida, Transporte, etc.)
+    Public Property Categoria As String
+
+    ' Fecha del gasto
+    Public Property Fecha As DateTime
 End Class
