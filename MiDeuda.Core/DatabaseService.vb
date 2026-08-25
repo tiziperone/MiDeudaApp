@@ -29,6 +29,10 @@ Public Class DatabaseService
         Return _db.DeleteAll(Of Gasto)()
     End Function
 
+    Public Function BorrarTodasLasFacturas() As Integer
+        Return _db.DeleteAll(Of Factura)()
+    End Function
+
 
     Public Function ObtenerTodosLosGastos() As List(Of Gasto)
         Return _db.Table(Of Gasto)().OrderByDescending(Function(g) g.Fecha).ToList()

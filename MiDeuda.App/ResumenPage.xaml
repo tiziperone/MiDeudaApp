@@ -37,15 +37,13 @@
                             FontAttributes="Bold"
                             BackgroundColor="Transparent"
                             SelectedIndexChanged="OnFiltroChanged">
-                        <Picker.ItemsSource>
-                            <x:Array Type="{x:Type x:String}">
-                                <x:String>Esta Semana</x:String>
-                                <x:String>Esta Quincena</x:String>
-                                <x:String>Este Mes</x:String>
-                                <x:String>Este Bimestre</x:String>
-                                <x:String>Histórico (Todos)</x:String>
-                            </x:Array>
-                        </Picker.ItemsSource>
+                        <Picker.Items>
+                            <x:String>Esta Semana</x:String>
+                            <x:String>Esta Quincena</x:String>
+                            <x:String>Este Mes</x:String>
+                            <x:String>Este Bimestre</x:String>
+                            <x:String>Histórico (Todos)</x:String>
+                        </Picker.Items>
                     </Picker>
                 </Border>
 
@@ -61,12 +59,10 @@
                             FontAttributes="Bold"
                             BackgroundColor="Transparent"
                             SelectedIndexChanged="OnFiltroChanged">
-                        <Picker.ItemsSource>
-                            <x:Array Type="{x:Type x:String}">
-                                <x:String>Ver en ARS</x:String>
-                                <x:String>Ver en USD</x:String>
-                            </x:Array>
-                        </Picker.ItemsSource>
+                        <Picker.Items>
+                            <x:String>Ver en ARS</x:String>
+                            <x:String>Ver en USD</x:String>
+                        </Picker.Items>
                     </Picker>
                 </Border>
             </Grid>
@@ -166,7 +162,7 @@
                                    VerticalOptions="Center"/>
 
                             <VerticalStackLayout Grid.Column="2" HorizontalOptions="End" VerticalOptions="Center">
-                                <Label Text="{Binding Total, StringFormat='${0:N2}'}" 
+                                <Label Text="{Binding TotalFormateado}" 
                                        FontSize="16" 
                                        FontAttributes="Bold" 
                                        TextColor="{AppThemeBinding Light=#111827, Dark=#F9FAFB}" 

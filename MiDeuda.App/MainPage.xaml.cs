@@ -15,7 +15,6 @@ public partial class MainPage : ContentPage
         // Valores por defecto
         CboMoneda.SelectedIndex = 0;
         CboCategoria.SelectedIndex = 0;
-
     }
 
     protected override void OnAppearing()
@@ -116,7 +115,7 @@ public partial class MainPage : ContentPage
             CotizacionUsada = cotizacion,
             MontoEnPesos = montoEnPesos,
             Categoria = CboCategoria.SelectedItem?.ToString() ?? "Varios",
-            Fecha = DateTime.Today // Asigna la fecha actual automáticamente
+            Fecha = DateTime.Today
         };
 
         _dbService.GuardarGasto(nuevoGasto);
@@ -133,7 +132,7 @@ public partial class MainPage : ContentPage
     {
         if (sender is SwipeItem swipeItem && swipeItem.CommandParameter is Gasto gasto)
         {
-            string simbolo = gasto.Moneda == "USD" ? "U$S " : "$";
+            string simbolo = gasto.Moneda == "USD" ? "USD " : "$";
             bool confirmar = await DisplayAlert(
                 "Borrar Registro",
                 $"¿Borrar \"{gasto.Descripcion}\" por {simbolo}{gasto.Monto:N2}?",
@@ -148,5 +147,4 @@ public partial class MainPage : ContentPage
             }
         }
     }
-
 }

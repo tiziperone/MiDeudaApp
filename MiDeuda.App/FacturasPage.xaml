@@ -4,131 +4,85 @@
              x:Class="MiDeuda.App.FacturasPage"
              BackgroundColor="{AppThemeBinding Light=#F3F4F6, Dark=#0F172A}">
 
-    <!-- MaximumWidthRequest centra y limita el ancho en Windows -->
-    <Grid RowDefinitions="Auto,*" MaximumWidthRequest="480" HorizontalOptions="Center">
+    <!-- Contenedor que centra la app estilo celular -->
+    <Grid MaximumWidthRequest="480" HorizontalOptions="Center">
+        <BoxView WidthRequest="500" HeightRequest="0" />
 
-        <!-- Truco para forzar el ancho máximo desde el inicio -->
-        <BoxView Grid.Row="0" WidthRequest="500" HeightRequest="0" />
+        <!-- TODA LA PÁGINA ES LA LISTA -->
+        <CollectionView x:Name="ListaFacturasView" SelectionMode="None">
 
-        <!-- CABECERA FIJA Y FORMULARIO -->
-        <VerticalStackLayout Grid.Row="0" Padding="16,24,16,10" Spacing="20">
+            <!-- EL HEADER: Acá adentro metemos el título y el formulario -->
+            <CollectionView.Header>
+                <VerticalStackLayout Padding="16,24,16,10" Spacing="20">
 
-            <Label Text="Gestión de Facturas" 
-                   FontSize="24" 
-                   FontAttributes="Bold" 
-                   TextColor="{AppThemeBinding Light=#111827, Dark=#F9FAFB}"/>
+                    <Label Text="Gestión de Facturas" 
+                           FontSize="24" 
+                           FontAttributes="Bold" 
+                           TextColor="{AppThemeBinding Light=#111827, Dark=#F9FAFB}"/>
 
-            <!-- Tarjeta Total Pendiente (Gradiente Rojo) -->
-            <Border StrokeThickness="0" StrokeShape="RoundRectangle 24" Padding="24">
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="#EF4444" Offset="0.0" />
-                        <GradientStop Color="#B91C1C" Offset="1.0" />
-                    </LinearGradientBrush>
-                </Border.Background>
-                <Border.Shadow>
-                    <Shadow Brush="#EF4444" Offset="0,8" Radius="16" Opacity="0.3" />
-                </Border.Shadow>
+                    <!-- Tarjeta Total Pendiente -->
+                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 24" Padding="24">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#EF4444" Offset="0.0" />
+                                <GradientStop Color="#B91C1C" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.Shadow>
+                            <Shadow Brush="#EF4444" Offset="0,8" Radius="16" Opacity="0.3" />
+                        </Border.Shadow>
 
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Total Pendiente" 
-                           TextColor="#FEE2E2" 
-                           FontSize="14" />
-                    <Label x:Name="LblTotalPendiente" 
-                           Text="$ 0,00" 
-                           TextColor="White" 
-                           FontSize="36" 
-                           FontAttributes="Bold" />
-                </VerticalStackLayout>
-            </Border>
-
-            <!-- Formulario de Registro -->
-            <Border StrokeThickness="0" 
-                    StrokeShape="RoundRectangle 20" 
-                    BackgroundColor="{AppThemeBinding Light=White, Dark=#1E293B}" 
-                    Padding="16">
-                <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,4" Radius="10" Opacity="0.05" />
-                </Border.Shadow>
-
-                <VerticalStackLayout Spacing="12">
-                    <Entry x:Name="TxtEmisor" 
-                           Placeholder="Proveedor (ej. DPEC, Telecom)" 
-                           PlaceholderColor="Gray"
-                           FontSize="16"
-                           BackgroundColor="Transparent" />
-
-                    <BoxView HeightRequest="1" Color="{AppThemeBinding Light=#E5E7EB, Dark=#334155}" />
-
-                    <Entry x:Name="TxtConcepto" 
-                           Placeholder="Concepto (ej. Factura mes de Agosto)" 
-                           PlaceholderColor="Gray"
-                           FontSize="14"
-                           BackgroundColor="Transparent" />
-
-                    <BoxView HeightRequest="1" Color="{AppThemeBinding Light=#E5E7EB, Dark=#334155}" />
-
-                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                        <Entry x:Name="TxtMonto" Grid.Column="0"
-                               Placeholder="0.00" 
-                               Keyboard="Numeric" 
-                               FontSize="20" 
-                               FontAttributes="Bold"
-                               BackgroundColor="Transparent" />
-                        <Picker x:Name="CboMoneda" Grid.Column="1"
-                                Title="ARS" 
-                                WidthRequest="95" 
-                                FontSize="14"
-                                FontAttributes="Bold"
-                                BackgroundColor="Transparent">
-                            <Picker.ItemsSource>
-                                <x:Array Type="{x:Type x:String}">
-                                    <x:String>ARS</x:String>
-                                    <x:String>USD</x:String>
-                                </x:Array>
-                            </Picker.ItemsSource>
-                        </Picker>
-                    </Grid>
-
-                    <BoxView HeightRequest="1" Color="{AppThemeBinding Light=#E5E7EB, Dark=#334155}" />
-
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,4,0,0">
-                        <VerticalStackLayout Grid.Column="0">
-                            <Label Text="Emisión" FontSize="12" TextColor="Gray"/>
-                            <DatePicker x:Name="DtpEmision" Format="dd/MM/yyyy" BackgroundColor="Transparent"/>
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Total Pendiente" TextColor="#FEE2E2" FontSize="14" />
+                            <Label x:Name="LblTotalPendiente" Text="$ 0,00" TextColor="White" FontSize="36" FontAttributes="Bold" />
                         </VerticalStackLayout>
-                        <VerticalStackLayout Grid.Column="1">
-                            <Label Text="Vencimiento" FontSize="12" TextColor="Gray"/>
-                            <DatePicker x:Name="DtpVencimiento" Format="dd/MM/yyyy" BackgroundColor="Transparent" TextColor="#EF4444"/>
+                    </Border>
+
+                    <!-- Formulario de Registro -->
+                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 20" BackgroundColor="{AppThemeBinding Light=White, Dark=#1E293B}" Padding="16">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,4" Radius="10" Opacity="0.05" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="12">
+                            <Entry x:Name="TxtEmisor" Placeholder="Proveedor (ej. DPEC, Telecom)" PlaceholderColor="Gray" FontSize="16" BackgroundColor="Transparent" />
+                            <BoxView HeightRequest="1" Color="{AppThemeBinding Light=#E5E7EB, Dark=#334155}" />
+                            <Entry x:Name="TxtConcepto" Placeholder="Concepto (ej. Factura mes de Agosto)" PlaceholderColor="Gray" FontSize="14" BackgroundColor="Transparent" />
+                            <BoxView HeightRequest="1" Color="{AppThemeBinding Light=#E5E7EB, Dark=#334155}" />
+
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <Entry x:Name="TxtMonto" Grid.Column="0" Placeholder="0.00" Keyboard="Numeric" FontSize="20" FontAttributes="Bold" BackgroundColor="Transparent" />
+                                <Picker x:Name="CboMoneda" Grid.Column="1" Title="ARS" WidthRequest="95" FontSize="14" FontAttributes="Bold" BackgroundColor="Transparent">
+                                    <Picker.ItemsSource>
+                                        <x:Array Type="{x:Type x:String}">
+                                            <x:String>ARS</x:String>
+                                            <x:String>USD</x:String>
+                                        </x:Array>
+                                    </Picker.ItemsSource>
+                                </Picker>
+                            </Grid>
+                            <BoxView HeightRequest="1" Color="{AppThemeBinding Light=#E5E7EB, Dark=#334155}" />
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,4,0,0">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="Emisión" FontSize="12" TextColor="Gray"/>
+                                    <DatePicker x:Name="DtpEmision" Format="dd/MM/yyyy" BackgroundColor="Transparent"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="Vencimiento" FontSize="12" TextColor="Gray"/>
+                                    <DatePicker x:Name="DtpVencimiento" Format="dd/MM/yyyy" BackgroundColor="Transparent" TextColor="#EF4444"/>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <Button Text="Registrar Factura" FontSize="15" FontAttributes="Bold" BackgroundColor="#10B981" TextColor="White" CornerRadius="12" HeightRequest="48" Margin="0,8,0,0" Clicked="OnGuardarFacturaClicked" />
                         </VerticalStackLayout>
-                    </Grid>
+                    </Border>
 
-                    <Button Text="Registrar Factura" 
-                            FontSize="15"
-                            FontAttributes="Bold"
-                            BackgroundColor="#10B981" 
-                            TextColor="White" 
-                            CornerRadius="12"
-                            HeightRequest="48"
-                            Margin="0,8,0,0"
-                            Clicked="OnGuardarFacturaClicked" />
+                    <!-- Título de la lista -->
+                    <Label Text="Facturas Registradas" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#374151, Dark=#94A3B8}" Margin="4,10,0,10"/>
                 </VerticalStackLayout>
-            </Border>
+            </CollectionView.Header>
 
-            <!-- Título de la lista -->
-            <Label Text="Facturas Registradas" 
-                   FontSize="18" 
-                   FontAttributes="Bold" 
-                   TextColor="{AppThemeBinding Light=#374151, Dark=#94A3B8}" 
-                   Margin="4,10,0,0"/>
-        </VerticalStackLayout>
-
-        <!-- LISTA ESCROLLEABLE DE FACTURAS -->
-        <CollectionView x:Name="ListaFacturasView" 
-                        Grid.Row="1" 
-                        SelectionMode="None" 
-                        Margin="0,0,0,20">
-
+            <!-- ESPACIO DE LA LISTA DE FACTURAS -->
             <CollectionView.ItemsLayout>
                 <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
             </CollectionView.ItemsLayout>
@@ -142,52 +96,32 @@
 
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <SwipeView>
+                    <SwipeView Margin="16,0">
                         <SwipeView.RightItems>
                             <SwipeItems Mode="Reveal">
-                                <SwipeItem Text="Borrar" BackgroundColor="#EF4444" 
-                                           Invoked="OnEliminarFacturaInvoked" 
-                                           CommandParameter="{Binding .}" />
+                                <SwipeItem Text="Borrar" BackgroundColor="#EF4444" Invoked="OnEliminarFacturaInvoked" CommandParameter="{Binding .}" />
                             </SwipeItems>
                         </SwipeView.RightItems>
 
-                        <!-- Tarjeta de Factura individual -->
-                        <Border StrokeThickness="0" 
-                                StrokeShape="RoundRectangle 16" 
-                                Margin="16,0" 
-                                Padding="16" 
-                                BackgroundColor="{AppThemeBinding Light=White, Dark=#1E293B}">
-
+                        <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="16" BackgroundColor="{AppThemeBinding Light=White, Dark=#1E293B}">
                             <Border.Triggers>
                                 <DataTrigger TargetType="Border" Binding="{Binding EstadoPago}" Value="Pagado">
                                     <Setter Property="Opacity" Value="0.45" />
                                 </DataTrigger>
                             </Border.Triggers>
-
                             <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
-
-                                <!-- Emisor -->
-                                <Label Grid.Row="0" Grid.Column="0"
-                                       Text="{Binding Emisor}"
-                                       FontAttributes="Bold"
-                                       FontSize="16"
-                                       TextColor="{AppThemeBinding Light=#111827, Dark=#F9FAFB}">
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding Emisor}" FontAttributes="Bold" FontSize="16" TextColor="{AppThemeBinding Light=#111827, Dark=#F9FAFB}">
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label" Binding="{Binding EstadoPago}" Value="Pagado">
                                             <Setter Property="TextDecorations" Value="Strikethrough" />
                                         </DataTrigger>
                                     </Label.Triggers>
                                 </Label>
-
-                                <!-- Monto con Badge de Moneda -->
                                 <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="4" HorizontalOptions="End" VerticalOptions="Center">
                                     <Border StrokeThickness="0" StrokeShape="RoundRectangle 6" BackgroundColor="{AppThemeBinding Light=#FEE2E2, Dark=#7F1D1D}" Padding="4,2" VerticalOptions="Center">
                                         <Label Text="{Binding TipoMoneda}" FontSize="10" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#DC2626, Dark=#FCA5A5}"/>
                                     </Border>
-                                    <Label Text="{Binding MontoTotal, StringFormat='${0:N2}'}"
-                                           FontAttributes="Bold"
-                                           FontSize="16"
-                                           TextColor="{AppThemeBinding Light=#111827, Dark=#F9FAFB}">
+                                    <Label Text="{Binding MontoTotal, StringFormat='${0:N2}'}" FontAttributes="Bold" FontSize="16" TextColor="{AppThemeBinding Light=#111827, Dark=#F9FAFB}">
                                         <Label.Triggers>
                                             <DataTrigger TargetType="Label" Binding="{Binding EstadoPago}" Value="Pagado">
                                                 <Setter Property="TextDecorations" Value="Strikethrough" />
@@ -196,32 +130,9 @@
                                         </Label.Triggers>
                                     </Label>
                                 </HorizontalStackLayout>
-
-                                <!-- Concepto -->
-                                <Label Grid.Row="1" Grid.Column="0"
-                                       Text="{Binding Concepto}"
-                                       FontSize="13" 
-                                       TextColor="Gray" />
-
-                                <!-- Fecha de Vencimiento -->
-                                <Label Grid.Row="2" Grid.Column="0"
-                                       Text="{Binding FechaVencimiento, StringFormat='Vence: {0:dd/MM/yyyy}'}"
-                                       FontSize="12"
-                                       TextColor="#EF4444" 
-                                       VerticalOptions="Center"/>
-
-                                <!-- Botón Pagar -->
-                                <Button Grid.Row="2" Grid.Column="1"
-                                        Text="Pagar"
-                                        FontSize="12"
-                                        FontAttributes="Bold"
-                                        HeightRequest="28"
-                                        Padding="12,0"
-                                        CornerRadius="6"
-                                        BackgroundColor="#3B82F6"
-                                        TextColor="White"
-                                        Clicked="OnMarcarPagadaClicked"
-                                        CommandParameter="{Binding .}">
+                                <Label Grid.Row="1" Grid.Column="0" Text="{Binding Concepto}" FontSize="13" TextColor="Gray" />
+                                <Label Grid.Row="2" Grid.Column="0" Text="{Binding FechaVencimiento, StringFormat='Vence: {0:dd/MM/yyyy}'}" FontSize="12" TextColor="#EF4444" VerticalOptions="Center"/>
+                                <Button Grid.Row="2" Grid.Column="1" Text="Pagar" FontSize="12" FontAttributes="Bold" HeightRequest="28" Padding="12,0" CornerRadius="6" BackgroundColor="#3B82F6" TextColor="White" Clicked="OnMarcarPagadaClicked" CommandParameter="{Binding .}">
                                     <Button.Triggers>
                                         <DataTrigger TargetType="Button" Binding="{Binding EstadoPago}" Value="Pagado">
                                             <Setter Property="Text" Value="Pagado" />

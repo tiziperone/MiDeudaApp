@@ -140,7 +140,7 @@ public partial class ResumenPage : ContentPage
                 Total = grupo.Sum(x => x.MontoEnPesos) / divisorCotizacion,
                 TotalFormateado = verEnUsd
                     ? $"USD {(grupo.Sum(x => x.MontoEnPesos) / divisorCotizacion):N2}"
-            :       (grupo.Sum(x => x.MontoEnPesos)).ToString("C", new CultureInfo("es-AR")),
+                    : (grupo.Sum(x => x.MontoEnPesos)).ToString("C", new CultureInfo("es-AR")),
                 Porcentaje = totalPeriodoPesos > 0
                     ? (grupo.Sum(x => x.MontoEnPesos) / totalPeriodoPesos).ToString("P1", new CultureInfo("es-AR"))
                     : "0%"
@@ -153,17 +153,43 @@ public partial class ResumenPage : ContentPage
 
     private async void OnBorrarTodoClicked(object? sender, EventArgs e)
     {
+        // 1. Desplegamos el menú de opciones
+        string accion = await DisplayActionSheet(
+            "¿Qué datos querés eliminar?",
+            "Cancelar",
+            null,
+            "Eliminar Solo Gastos",
+            "Eliminar Solo Facturas",
+            "Eliminar TODO (Gastos y Facturas)"
+        );
+
+        if (accion == "Cancelar" || string.IsNullOrEmpty(accion))
+            return;
+
+        // 2. Pedimos confirmación final
         bool confirmar = await DisplayAlert(
-            "¡Peligro!",
-            "¿Estás seguro de que querés borrar todos los gastos registrados? Esta acción no se puede deshacer.",
-            "Sí, borrar",
+            "¡Atención!",
+            $"Estás a punto de {accion.ToUpper()}. Esta acción no se puede deshacer. ¿Deseas continuar?",
+            "Sí, eliminar",
             "Cancelar"
         );
 
         if (confirmar)
         {
-            _dbService.BorrarTodosLosGastos();
+            // 3. Borramos según lo elegido
+            if (accion == "Eliminar Solo Gastos" || accion == "Eliminar TODO (Gastos y Facturas)")
+            {
+                _dbService.BorrarTodosLosGastos();
+            }
+
+            if (accion == "Eliminar Solo Facturas" || accion == "Eliminar TODO (Gastos y Facturas)")
+            {
+                _dbService.BorrarTodasLasFacturas();
+            }
+
+            // 4. Refrescamos la vista
             CargarResumen();
+            await DisplayAlert("Éxito", "Los datos fueron eliminados correctamente.", "OK");
         }
     }
 }
@@ -172,6 +198,6 @@ public class CategoriaAgrupada
 {
     public string Nombre { get; set; } = string.Empty;
     public decimal Total { get; set; }
-    public string Porcentaje { get; set; } = string.Empty;
     public string TotalFormateado { get; set; } = string.Empty;
+    public string Porcentaje { get; set; } = string.Empty;
 }
