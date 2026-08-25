@@ -21,19 +21,30 @@ public partial class MainPage : ContentPage
 
     private void CargarGastos()
     {
+        // 1. Obtenemos todos los gastos
         var gastos = _dbService.ObtenerTodosLosGastos();
+
+        // 2. Cargamos la lista completa abajo (Últimos Movimientos)
+        ListaGastosView.ItemsSource = null;
         ListaGastosView.ItemsSource = gastos;
 
-        decimal totalEnPesos = 0;
+        // 3. Calculamos el total SOLO de hoy
+        decimal totalHoyEnPesos = 0;
         if (gastos != null)
         {
             foreach (var g in gastos)
             {
-                totalEnPesos += g.MontoEnPesos;
+                // Comparamos si la fecha del gasto coincide con la fecha actual
+                if (g.Fecha.Date == DateTime.Today)
+                {
+                    totalHoyEnPesos += g.MontoEnPesos;
+                }
             }
         }
 
-        LblTotalGastos.Text = totalEnPesos.ToString("C", new CultureInfo("es-AR"));
+        // 4. Actualizamos los textos en pantalla
+        LblTotalGastos.Text = totalHoyEnPesos.ToString("C", new CultureInfo("es-AR"));
+        LblTituloTotal.Text = $"Total Gastado (Hoy, {DateTime.Today:dd/MM})";
     }
 
     private async void OnMonedaOrMontoChanged(object? sender, EventArgs e)

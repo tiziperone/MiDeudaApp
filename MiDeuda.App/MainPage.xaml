@@ -37,7 +37,9 @@
                 </Border.Shadow>
 
                 <VerticalStackLayout Spacing="8">
-                    <Label Text="Total Gastado" 
+
+                    <Label x:Name="LblTituloTotal"
+                           Text="Total Gastado Hoy" 
                            TextColor="#E0E7FF" 
                            FontSize="14" />
                     <Label x:Name="LblTotalGastos" 
