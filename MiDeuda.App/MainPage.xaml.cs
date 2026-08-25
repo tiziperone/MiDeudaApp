@@ -71,42 +71,52 @@ public partial class MainPage : ContentPage
 
     private async void OnGuardarGastoClicked(object? sender, EventArgs e)
     {
-        // 1. Validar descripción
         if (string.IsNullOrWhiteSpace(TxtDescripcion.Text))
         {
-            await DisplayAlert("Validación", "Por favor ingresa una descripción para el gasto.", "Aceptar");
-            TxtDescripcion.Focus();
+            await DisplayAlert("Validación", "Ingresa una descripción.", "Aceptar");
             return;
         }
 
-        // 2. Validar formato y valor del monto
         if (!decimal.TryParse(TxtMonto.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal monto) || monto <= 0)
         {
-            await DisplayAlert("Validación", "Ingresa un monto numérico válido y mayor a 0.", "Aceptar");
-            TxtMonto.Focus();
+            await DisplayAlert("Validación", "Ingresa un monto válido mayor a 0.", "Aceptar");
             return;
         }
 
-        // 3. Creación del objeto
+        string monedaSeleccionada = CboMoneda.SelectedItem?.ToString() ?? "ARS";
+        decimal cotizacion = 1m;
+        decimal montoEnPesos = monto;
+
+        if (monedaSeleccionada == "USD")
+        {
+            try
+            {
+                cotizacion = await CotizacionService.ObtenerPrecioVentaDolarAsync("oficial");
+                montoEnPesos = monto * cotizacion;
+            }
+            catch
+            {
+                await DisplayAlert("Error", "No se pudo obtener la cotización oficial del dólar. Verifica tu conexión.", "Aceptar");
+                return;
+            }
+        }
+
         var nuevoGasto = new Gasto
         {
             Descripcion = TxtDescripcion.Text.Trim(),
             Monto = monto,
-            Moneda = CboMoneda.SelectedItem?.ToString() ?? "ARS",
+            Moneda = monedaSeleccionada,
+            CotizacionUsada = cotizacion,
+            MontoEnPesos = montoEnPesos,
             Categoria = CboCategoria.SelectedItem?.ToString() ?? "Varios",
             Fecha = DtpFecha.Date ?? DateTime.Today
         };
 
-        // 4. Guardar en SQLite
         _dbService.GuardarGasto(nuevoGasto);
 
-        // 5. Limpiar formulario
         TxtDescripcion.Text = string.Empty;
         TxtMonto.Text = string.Empty;
         LblConversion.IsVisible = false;
-        TxtDescripcion.Focus();
-
-        // 6. Actualizar la lista en pantalla
         CargarGastos();
     }
 
