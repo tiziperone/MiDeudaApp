@@ -132,11 +132,26 @@
                 </VerticalStackLayout>
             </Border>
 
-            <Label Text="Últimos Movimientos" 
-                   FontSize="18" 
-                   FontAttributes="Bold" 
-                   TextColor="{AppThemeBinding Light=#374151, Dark=#94A3B8}" 
-                   Margin="4,10,0,0"/>
+            <!-- Título y Botón Borrar Todo -->
+            <Grid ColumnDefinitions="*,Auto" Margin="4,10,0,0" VerticalOptions="End">
+                <Label Grid.Column="0"
+                       Text="Últimos Movimientos" 
+                       FontSize="18" 
+                       FontAttributes="Bold" 
+                       TextColor="{AppThemeBinding Light=#374151, Dark=#94A3B8}" 
+                       VerticalOptions="Center"/>
+
+                <Button Grid.Column="1"
+                        Text="Borrar Todo"
+                        TextColor="#EF4444"
+                        BackgroundColor="Transparent"
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        Padding="8,0"
+                        HeightRequest="30"
+                        Clicked="OnBorrarTodoClicked"
+                        VerticalOptions="Center" />
+            </Grid>
         </VerticalStackLayout>
 
         <!-- LISTA ESCROLLEABLE -->
