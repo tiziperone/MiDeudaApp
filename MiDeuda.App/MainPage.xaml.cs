@@ -13,8 +13,8 @@ public partial class MainPage : ContentPage
         _dbService = dbService;
 
         // Valores iniciales
-        CboMoneda.SelectedIndex = 0; // Selecciona ARS por defecto
-        CboCategoria.SelectedIndex = 0; // Selecciona Comida por defecto
+        CboMoneda.SelectedIndex = 0; // ARS por defecto
+        CboCategoria.SelectedIndex = 0; // Comida por defecto
         DtpFecha.Date = DateTime.Today;
 
         CargarGastos();
@@ -31,12 +31,42 @@ public partial class MainPage : ContentPage
 
         // 3. Calcular el total acumulado
         decimal total = 0;
-        foreach (var g in gastos)
+        if (gastos != null)
         {
-            total += g.Monto;
+            foreach (var g in gastos)
+            {
+                total += g.Monto;
+            }
         }
 
         LblTotalGastos.Text = total.ToString("C", new CultureInfo("es-AR"));
+    }
+
+    private async void OnMonedaOrMontoChanged(object? sender, EventArgs e)
+    {
+        if (CboMoneda.SelectedItem?.ToString() == "USD" &&
+            decimal.TryParse(TxtMonto.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal montoUsd) &&
+            montoUsd > 0)
+        {
+            try
+            {
+                decimal cotizacion = await CotizacionService.ObtenerPrecioVentaDolarAsync("oficial");
+                decimal montoArs = montoUsd * cotizacion;
+
+                LblConversion.Text = $"≈ ${montoArs:N2} ARS (TC Oficial: ${cotizacion:N2})";
+                LblConversion.IsVisible = true;
+            }
+            catch
+            {
+                LblConversion.Text = "No se pudo obtener la cotización actual";
+                LblConversion.IsVisible = true;
+            }
+        }
+        else
+        {
+            LblConversion.Text = string.Empty;
+            LblConversion.IsVisible = false;
+        }
     }
 
     private async void OnGuardarGastoClicked(object? sender, EventArgs e)
@@ -44,20 +74,20 @@ public partial class MainPage : ContentPage
         // 1. Validar descripción
         if (string.IsNullOrWhiteSpace(TxtDescripcion.Text))
         {
-            await DisplayAlertAsync("Validación", "Por favor ingresa una descripción para el gasto.", "Aceptar");
+            await DisplayAlert("Validación", "Por favor ingresa una descripción para el gasto.", "Aceptar");
             TxtDescripcion.Focus();
             return;
         }
 
         // 2. Validar formato y valor del monto
-        if (!decimal.TryParse(TxtMonto.Text, out decimal monto) || monto <= 0)
+        if (!decimal.TryParse(TxtMonto.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal monto) || monto <= 0)
         {
-            await DisplayAlertAsync("Validación", "Ingresa un monto numérico válido y mayor a 0.", "Aceptar");
+            await DisplayAlert("Validación", "Ingresa un monto numérico válido y mayor a 0.", "Aceptar");
             TxtMonto.Focus();
             return;
         }
 
-        // 3. Creación del objeto resolviendo el tipo anulable de la fecha
+        // 3. Creación del objeto
         var nuevoGasto = new Gasto
         {
             Descripcion = TxtDescripcion.Text.Trim(),
@@ -73,6 +103,7 @@ public partial class MainPage : ContentPage
         // 5. Limpiar formulario
         TxtDescripcion.Text = string.Empty;
         TxtMonto.Text = string.Empty;
+        LblConversion.IsVisible = false;
         TxtDescripcion.Focus();
 
         // 6. Actualizar la lista en pantalla
@@ -83,7 +114,7 @@ public partial class MainPage : ContentPage
     {
         if (sender is SwipeItem swipeItem && swipeItem.CommandParameter is Gasto gasto)
         {
-            bool confirmar = await DisplayAlertAsync(
+            bool confirmar = await DisplayAlert(
                 "Eliminar Gasto",
                 $"¿Estás seguro de eliminar el gasto \"{gasto.Descripcion}\" de ${gasto.Monto:N2}?",
                 "Sí, Eliminar",

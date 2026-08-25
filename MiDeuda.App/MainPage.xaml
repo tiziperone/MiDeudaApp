@@ -48,10 +48,12 @@
                         <Entry x:Name="TxtMonto"
                                Grid.Column="0"
                                Placeholder="Monto"
-                               Keyboard="Numeric" />
+                               Keyboard="Numeric"
+                               TextChanged="OnMonedaOrMontoChanged" />
                         <Picker x:Name="CboMoneda"
                                 Grid.Column="1"
-                                Title="Moneda">
+                                Title="Moneda"
+                                SelectedIndexChanged="OnMonedaOrMontoChanged">
                             <Picker.ItemsSource>
                                 <x:Array Type="{x:Type x:String}">
                                     <x:String>ARS</x:String>
@@ -60,6 +62,13 @@
                             </Picker.ItemsSource>
                         </Picker>
                     </Grid>
+
+                    <!-- Detalle de conversión en vivo para USD -->
+                    <Label x:Name="LblConversion"
+                           FontSize="12"
+                           TextColor="#6B7280"
+                           IsVisible="False"
+                           Margin="2,-4,0,0" />
 
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                         <Picker x:Name="CboCategoria"
@@ -90,7 +99,7 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Historial con Etiquetas Tipo Trello -->
+            <!-- Historial -->
             <Label Text="Historial de Gastos"
                    FontSize="18"
                    FontAttributes="Bold"
